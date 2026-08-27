@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_typography.dart';
 import '../core/theme/soft_ui_colors.dart';
 import 'continue_cta_button.dart';
+import 'finedge_mascot.dart';
 
 /// Prompt « crée ton profil » (style Duolingo, charte FinEdge).
 class CreateProfilePrompt extends StatelessWidget {
@@ -20,20 +21,7 @@ class CreateProfilePrompt extends StatelessWidget {
     return Column(
       children: [
         const Spacer(flex: 2),
-        Container(
-          width: 112,
-          height: 112,
-          decoration: BoxDecoration(
-            color: SoftUiColors.tanSoft,
-            shape: BoxShape.circle,
-            border: Border.all(color: SoftUiColors.border, width: 2),
-          ),
-          child: const Icon(
-            Icons.support_agent_rounded,
-            size: 56,
-            color: SoftUiColors.orangeDeep,
-          ),
-        ),
+        const FinedgeMascot(size: 112, emojiSize: 56),
         const SizedBox(height: 20),
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 12),

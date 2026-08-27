@@ -75,7 +75,7 @@ class AccueilView extends StatelessWidget {
                 if (session.hasCompletedFirstLesson) {
                   context.go('/lecons');
                 } else {
-                  context.push('/premiere-lecon');
+                  context.push('/lecon/besoins_envies');
                 }
               },
             ),
@@ -122,7 +122,7 @@ class AccueilView extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: HomeQuickAction(
-                    icon: Icons.support_agent_rounded,
+                    icon: Icons.smart_toy_rounded,
                     label: 'Coach',
                     color: const Color(0xFF90CAF9),
                     onTap: () => context.go('/coach'),

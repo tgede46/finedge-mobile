@@ -31,6 +31,8 @@ class GuestSession {
 
   bool get isOnboarded => diagnostic != null;
   bool get isSignedIn => authProvider != null;
+  /// Invité local (Commencer) — pas encore de compte e-mail / social.
+  bool get isGuest => authProvider == 'guest';
   bool get isStreakGoalReached =>
       streakGoalDays != null && streakDays >= streakGoalDays!;
 

@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../core/theme/app_typography.dart';
 import '../core/theme/soft_ui_colors.dart';
+import 'finedge_mascot.dart';
 
-/// Mascotte coach (icône, plus d’emoji) + bulle de dialogue.
+/// Mascotte coach (crocodile) + bulle de dialogue.
 class MascotSpeechHeader extends StatelessWidget {
   const MascotSpeechHeader({super.key, required this.message});
 
@@ -23,10 +24,9 @@ class MascotSpeechHeader extends StatelessWidget {
             border: Border.all(color: SoftUiColors.border),
           ),
           alignment: Alignment.center,
-          child: const Icon(
-            Icons.support_agent_rounded,
-            size: 34,
-            color: SoftUiColors.orangeDeep,
+          child: const Text(
+            FinedgeMascot.emoji,
+            style: TextStyle(fontSize: 34),
           ),
         ),
         const SizedBox(width: 12),

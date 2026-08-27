@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/feedback/app_feedback.dart';
 import '../core/theme/app_typography.dart';
 import '../core/theme/onboarding_spacing.dart';
 import '../core/theme/soft_ui_colors.dart';
@@ -36,7 +37,10 @@ class DuoChoiceTile extends StatelessWidget {
         color: bg,
         borderRadius: BorderRadius.circular(16),
         child: InkWell(
-          onTap: onTap,
+          onTap: () {
+            AppFeedback.selection();
+            onTap();
+          },
           borderRadius: BorderRadius.circular(16),
           child: Container(
             padding: const EdgeInsets.symmetric(

@@ -103,11 +103,8 @@ class MascotBubble extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: SoftUiColors.border),
           ),
-          child: const Icon(
-            Icons.support_agent_rounded,
-            color: SoftUiColors.orangeDeep,
-            size: 32,
-          ),
+          alignment: Alignment.center,
+          child: const Text('🐊', style: TextStyle(fontSize: 32)),
         ),
         const SizedBox(width: 10),
         Expanded(

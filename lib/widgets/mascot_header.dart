@@ -16,7 +16,7 @@ class MascotHeader extends StatelessWidget {
         const CircleAvatar(
           radius: 28,
           backgroundColor: AppColors.primary,
-          child: Text('🦉', style: TextStyle(fontSize: 28)),
+          child: Text('🐊', style: TextStyle(fontSize: 28)),
         ),
         const SizedBox(width: 12),
         Expanded(

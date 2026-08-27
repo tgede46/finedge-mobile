@@ -15,6 +15,7 @@ import '../../views/lecon/streak_renewal_flow_view.dart';
 import '../../views/onboarding/onboarding_view.dart';
 import '../../views/profil/mfa_setup_view.dart';
 import '../../views/profil/profil_view.dart';
+import '../../views/profil/settings_view.dart';
 import '../../views/sentier/sentier_view.dart';
 import '../../views/shell/main_shell_view.dart';
 import '../../views/classement/classement_view.dart';
@@ -38,7 +39,10 @@ GoRouter createAppRouter({required SessionController session}) {
       final authGate = welcome || login;
 
       if (session.isOnboarded) {
-        if (intro || onboarding || authGate) return '/accueil';
+        if (intro || onboarding) return '/accueil';
+        // Guest peut ouvrir /login pour créer / lier un compte (upgrade).
+        if (login && session.isGuest) return null;
+        if (authGate) return '/accueil';
         return null;
       }
       if (!session.hasSeenIntro && !intro) return '/intro';
@@ -100,6 +104,12 @@ GoRouter createAppRouter({required SessionController session}) {
         name: 'mfa',
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const MfaSetupView(),
+      ),
+      GoRoute(
+        path: '/parametres',
+        name: 'parametres',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const SettingsView(),
       ),
       GoRoute(
         path: '/mfa/verify',

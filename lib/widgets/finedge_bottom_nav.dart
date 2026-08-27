@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/feedback/app_feedback.dart';
 import '../../core/router/app_tabs.dart';
 import '../../core/theme/soft_ui_colors.dart';
 
@@ -46,7 +47,10 @@ class FinedgeBottomNav extends StatelessWidget {
                     icon: currentIndex == i ? _items[i].$2 : _items[i].$1,
                     label: _items[i].$3,
                     selected: currentIndex == i,
-                    onTap: () => onTap(i),
+                    onTap: () {
+                      AppFeedback.selection();
+                      onTap(i);
+                    },
                   ),
                 ),
             ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/feedback/app_feedback.dart';
 import '../core/theme/app_typography.dart';
 import '../core/theme/soft_ui_colors.dart';
 
@@ -23,7 +24,12 @@ class ContinueCtaButton extends StatelessWidget {
       width: double.infinity,
       height: 54,
       child: FilledButton(
-        onPressed: enabled ? onPressed : null,
+        onPressed: enabled
+            ? () {
+                AppFeedback.light();
+                onPressed();
+              }
+            : null,
         style: FilledButton.styleFrom(
           backgroundColor: enabled ? SoftUiColors.orange : SoftUiColors.tanSoft,
           foregroundColor: enabled ? Colors.white : SoftUiColors.muted,

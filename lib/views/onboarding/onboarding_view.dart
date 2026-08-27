@@ -8,7 +8,6 @@ import '../../models/avatar_catalog.dart';
 import '../../models/diagnostic.dart';
 import '../../widgets/avatar_option_card.dart';
 import '../../widgets/continue_cta_button.dart';
-import '../../widgets/create_profile_prompt.dart';
 import '../../widgets/duo_choice_tile.dart';
 import '../../widgets/duo_outline_field.dart';
 import '../../widgets/duo_question_scaffold.dart';
@@ -25,8 +24,9 @@ class OnboardingView extends StatefulWidget {
 
 class _OnboardingViewState extends State<OnboardingView> {
   /// 0 intro · 1 métier · 2 niveau · 3 rythme · 4 résumé
-  /// · 5 objectifs · 6 nom · 7 âge · 8 avatar · 9 profil
-  static const _totalSteps = 10;
+  /// · 5 objectifs · 6 nom · 7 âge · 8 avatar
+  /// (prompt compte → après la 1ʳᵉ leçon si guest)
+  static const _totalSteps = 9;
 
   int _step = 0;
   String? _occupation;
@@ -157,8 +157,8 @@ class _OnboardingViewState extends State<OnboardingView> {
   }
 
   Future<void> _finish() async {
-    await SessionScope.of(context)
-        .completeOnboarding(_buildDiagnostic(), authProvider: 'guest');
+    // Conserve email/social si déjà connecté ; sinon défaut guest.
+    await SessionScope.of(context).completeOnboarding(_buildDiagnostic());
   }
 
   Future<void> _continue() async {
@@ -235,11 +235,7 @@ class _OnboardingViewState extends State<OnboardingView> {
         children: [
           OnboardingProgressHeader(step: 1, total: _totalSteps),
           const Spacer(),
-          const Icon(
-            Icons.support_agent_rounded,
-            size: 72,
-            color: SoftUiColors.orangeDeep,
-          ),
+          const Text('🐊', style: TextStyle(fontSize: 64)),
           const SizedBox(height: 20),
           Text(
             'Quelques questions pour mieux te comprendre',
@@ -406,19 +402,7 @@ class _OnboardingViewState extends State<OnboardingView> {
           ),
         ],
       ),
-      _ => Column(
-        children: [
-          OnboardingProgressHeader(
-            step: _step + 1,
-            total: _totalSteps,
-            onBack: _back,
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: CreateProfilePrompt(onCreate: _finish, onLater: _finish),
-          ),
-        ],
-      ),
+      _ => const SizedBox.shrink(),
     };
   }
 }

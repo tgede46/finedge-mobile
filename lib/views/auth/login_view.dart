@@ -33,12 +33,25 @@ class _LoginViewState extends State<LoginView> {
 
   Future<void> _submit() async {
     if (_email.text.trim().isEmpty || _password.text.isEmpty) return;
-    await SessionScope.of(context).signIn(provider: 'email');
+    await SessionScope.of(context).signIn(
+      provider: 'email',
+      email: _email.text.trim(),
+    );
+  }
+
+  void _back() {
+    final session = SessionScope.of(context);
+    if (session.isOnboarded) {
+      context.go('/accueil');
+    } else {
+      context.go('/welcome');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final enabled = _email.text.trim().isNotEmpty && _password.text.isNotEmpty;
+    final onboarded = SessionScope.of(context).isOnboarded;
 
     return Scaffold(
       backgroundColor: SoftUiColors.cream,
@@ -50,7 +63,7 @@ class _LoginViewState extends State<LoginView> {
               Align(
                 alignment: Alignment.centerLeft,
                 child: IconButton(
-                  onPressed: () => context.go('/welcome'),
+                  onPressed: _back,
                   icon: const Icon(Icons.arrow_back_ios_new, size: 18),
                   color: SoftUiColors.ink,
                 ),
@@ -65,19 +78,21 @@ class _LoginViewState extends State<LoginView> {
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Se connecter',
-                style: TextStyle(
+              Text(
+                onboarded ? 'Créer mon profil' : 'Se connecter',
+                style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
                   color: SoftUiColors.ink,
                 ),
               ),
               const SizedBox(height: 8),
-              const Text(
-                'Retrouve ton sentier, tes XP et ta caisse.',
+              Text(
+                onboarded
+                    ? 'Sauvegarde ta série, tes XP et ta progression.'
+                    : 'Retrouve ton sentier, tes XP et ta caisse.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: SoftUiColors.muted, fontSize: 14),
+                style: const TextStyle(color: SoftUiColors.muted, fontSize: 14),
               ),
               const SizedBox(height: 28),
               AuthTextField(
@@ -95,27 +110,28 @@ class _LoginViewState extends State<LoginView> {
               ContinueCtaButton(
                 enabled: enabled,
                 onPressed: _submit,
-                label: 'Se connecter',
+                label: onboarded ? 'Enregistrer mon compte' : 'Se connecter',
               ),
               const Spacer(),
-              GestureDetector(
-                onTap: () => context.go('/welcome'),
-                child: const Text.rich(
-                  TextSpan(
-                    style: TextStyle(color: SoftUiColors.muted, fontSize: 14),
-                    children: [
-                      TextSpan(text: "Pas encore de compte ? "),
-                      TextSpan(
-                        text: 'Commencer',
-                        style: TextStyle(
-                          color: SoftUiColors.orangeDeep,
-                          fontWeight: FontWeight.w800,
+              if (!onboarded)
+                GestureDetector(
+                  onTap: () => context.go('/welcome'),
+                  child: const Text.rich(
+                    TextSpan(
+                      style: TextStyle(color: SoftUiColors.muted, fontSize: 14),
+                      children: [
+                        TextSpan(text: "Pas encore de compte ? "),
+                        TextSpan(
+                          text: 'Commencer',
+                          style: TextStyle(
+                            color: SoftUiColors.orangeDeep,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),

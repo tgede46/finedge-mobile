@@ -22,6 +22,7 @@ class SessionController extends ChangeNotifier {
   bool get isOnboarded => _session.isOnboarded;
   bool get hasSeenIntro => _session.hasSeenIntro;
   bool get isSignedIn => _session.isSignedIn;
+  bool get isGuest => _session.isGuest;
   LearningPath get path => _session.path;
   MfaMethod get mfaMethod => _session.mfaMethod;
 
@@ -39,8 +40,13 @@ class SessionController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> signIn({required String provider}) async {
-    _session = _session.copyWith(hasSeenIntro: true, authProvider: provider);
+  /// Upgrade / connexion — conserve XP, diagnostic, 1ʳᵉ leçon, etc.
+  Future<void> signIn({required String provider, String? email}) async {
+    _session = _session.copyWith(
+      hasSeenIntro: true,
+      authProvider: provider,
+      email: email,
+    );
     await _store.save(_session);
     notifyListeners();
   }

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/feedback/app_feedback.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/theme/soft_ui_colors.dart';
 import '../../widgets/star_burst_badge.dart';
@@ -37,6 +38,7 @@ class _LessonCompleteViewState extends State<LessonCompleteView>
   @override
   void initState() {
     super.initState();
+    AppFeedback.success();
     _bg = AnimationController(vsync: this, duration: const Duration(seconds: 6))
       ..repeat();
   }
