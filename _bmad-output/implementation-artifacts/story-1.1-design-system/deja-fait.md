@@ -7,3 +7,4 @@
 - Coquilles d'interface sur chaque onglet
 - Client HTTP Dio stub (`ApiClient`)
 - Tests widget : thème + navigation entre onglets
+- Composants extraits dans `lib/widgets/` (cartes, chips, nœuds, bulles)

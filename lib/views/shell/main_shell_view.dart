@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/router/app_tabs.dart';
-import '../../core/theme/app_colors.dart';
 
-/// Coquille MVC : vue de navigation principale à 4 onglets.
 class MainShellView extends StatelessWidget {
   const MainShellView({super.key, required this.navigationShell});
 
@@ -42,51 +40,6 @@ class MainShellView extends StatelessWidget {
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
             label: AppTabs.profil,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// En-tête compact streak + XP, partagé par les vues d'onglets.
-class FintechStatusChip extends StatelessWidget {
-  const FintechStatusChip({
-    super.key,
-    required this.icon,
-    required this.label,
-    this.emphasized = false,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool emphasized;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: emphasized
-            ? AppColors.onPrimary.withValues(alpha: 0.18)
-            : AppColors.surface,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 16,
-            color: emphasized ? AppColors.onPrimary : AppColors.primary,
-          ),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: emphasized ? AppColors.onPrimary : AppColors.brown,
-              fontWeight: FontWeight.w700,
-            ),
           ),
         ],
       ),
