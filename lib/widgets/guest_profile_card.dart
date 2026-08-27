@@ -5,9 +5,14 @@ import '../core/theme/app_typography.dart';
 import 'fintech_header_card.dart';
 
 class GuestProfileCard extends StatelessWidget {
-  const GuestProfileCard({super.key, required this.subtitle});
+  const GuestProfileCard({
+    super.key,
+    required this.subtitle,
+    this.displayName = 'Invité',
+  });
 
   final String subtitle;
+  final String displayName;
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +30,7 @@ class GuestProfileCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Invité',
+                  displayName,
                   style: AppTypography.title.copyWith(
                     color: AppColors.onPrimary,
                   ),

@@ -1,7 +1,5 @@
 enum ActivityProfile { merchant, pagneSeller, employee, student }
 
-enum FinancialGoal { cashbox, emergencySave, mobileMoney }
-
 enum DailyPace { calm, recommended, intense }
 
 extension ActivityProfileX on ActivityProfile {
@@ -11,59 +9,114 @@ extension ActivityProfileX on ActivityProfile {
     ActivityProfile.employee => 'Salarié',
     ActivityProfile.student => 'Étudiant',
   };
-
-  String get hint => switch (this) {
-    ActivityProfile.merchant => 'Boutique, kiosque, marché',
-    ActivityProfile.pagneSeller => 'Stand de pagnes et tissus',
-    ActivityProfile.employee => 'Salaire et budget perso',
-    ActivityProfile.student => 'Argent de poche et projets',
-  };
-}
-
-extension FinancialGoalX on FinancialGoal {
-  String get label => switch (this) {
-    FinancialGoal.cashbox => 'Mieux gérer ma caisse',
-    FinancialGoal.emergencySave => 'Épargner pour les imprévus',
-    FinancialGoal.mobileMoney => 'Maîtriser le Mobile Money',
-  };
 }
 
 extension DailyPaceX on DailyPace {
   String get label => switch (this) {
-    DailyPace.calm => '3 min / jour',
-    DailyPace.recommended => '5 min / jour',
-    DailyPace.intense => '10 min / jour',
-  };
-
-  String get hint => switch (this) {
     DailyPace.calm => 'Tranquille',
-    DailyPace.recommended => 'Recommandé',
+    DailyPace.recommended => 'Régulier',
     DailyPace.intense => 'Intense',
   };
 }
 
 class Diagnostic {
   const Diagnostic({
-    required this.activity,
-    required this.goal,
-    required this.pace,
+    required this.goals,
+    required this.level,
+    required this.energy,
+    required this.avatar,
+    this.displayName,
+    this.age,
   });
 
-  final ActivityProfile activity;
-  final FinancialGoal goal;
-  final DailyPace pace;
+  final List<String> goals;
+  final String level;
+  final String energy;
+  final String avatar;
+  final String? displayName;
+  final int? age;
 
-  Map<String, String> toJson() => {
-    'activity': activity.name,
-    'goal': goal.name,
-    'pace': pace.name,
+  DailyPace get pace => switch (energy) {
+    'calm' => DailyPace.calm,
+    'intense' => DailyPace.intense,
+    _ => DailyPace.recommended,
+  };
+
+  ActivityProfile get activity {
+    if (avatar == 'entrepreneur' || avatar == 'commercante') {
+      return ActivityProfile.merchant;
+    }
+    if (avatar == 'etudiant') return ActivityProfile.student;
+    if (avatar == 'sage') return ActivityProfile.employee;
+    return ActivityProfile.merchant;
+  }
+
+  bool get wantsCashbox =>
+      goals.contains('commerce') || avatar == 'commercante';
+
+  bool get wantsMobileMoney =>
+      goals.contains('overdraft') || goals.contains('budget');
+
+  bool get wantsEmergency =>
+      goals.contains('save_project') ||
+      goals.contains('overdraft') ||
+      goals.contains('budget');
+
+  bool get wantsInvest => goals.contains('invest');
+
+  Map<String, dynamic> toJson() => {
+    'goals': goals,
+    'level': level,
+    'energy': energy,
+    'avatar': avatar,
+    if (displayName != null) 'displayName': displayName,
+    if (age != null) 'age': age,
   };
 
   static Diagnostic fromJson(Map<String, dynamic> json) {
+    // Anciens formats
+    if (json.containsKey('activity') && json.containsKey('goal')) {
+      final goal = json['goal'] as String;
+      return Diagnostic(
+        goals: switch (goal) {
+          'cashbox' => ['commerce'],
+          'emergencySave' => ['save_project'],
+          _ => ['invest'],
+        },
+        level: 'beginner',
+        energy: json['pace'] as String? ?? 'recommended',
+        avatar: 'entrepreneur',
+        displayName: json['displayName'] as String?,
+        age: json['age'] as int?,
+      );
+    }
+    if (json.containsKey('activities')) {
+      final priorities = (json['priorities'] as List?)?.cast<String>() ?? [];
+      return Diagnostic(
+        goals: priorities.isEmpty ? ['save_project'] : priorities,
+        level: 'beginner',
+        energy: json['pace'] as String? ?? 'recommended',
+        avatar: 'entrepreneur',
+        displayName: json['displayName'] as String?,
+        age: json['age'] as int?,
+      );
+    }
+
+    List<String> listOf(String key) {
+      final raw = json[key];
+      if (raw is List) return raw.map((e) => e.toString()).toList();
+      return const [];
+    }
+
     return Diagnostic(
-      activity: ActivityProfile.values.byName(json['activity'] as String),
-      goal: FinancialGoal.values.byName(json['goal'] as String),
-      pace: DailyPace.values.byName(json['pace'] as String),
+      goals: listOf('goals'),
+      level: json['level'] as String? ?? 'beginner',
+      energy: json['energy'] as String? ?? 'recommended',
+      avatar: json['avatar'] as String? ?? 'entrepreneur',
+      displayName: json['displayName'] as String?,
+      age: json['age'] is int
+          ? json['age'] as int
+          : int.tryParse('${json['age'] ?? ''}'),
     );
   }
 }

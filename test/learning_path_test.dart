@@ -3,35 +3,37 @@ import 'package:findge/models/learning_path.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('commerçant → premier nœud caisse', () {
+  test('objectif budget → imprévus', () {
     final path = LearningPath.fromDiagnostic(
       const Diagnostic(
-        activity: ActivityProfile.pagneSeller,
-        goal: FinancialGoal.emergencySave,
-        pace: DailyPace.calm,
-      ),
-    );
-    expect(path.activeLesson.id, 'cashbox');
-    expect(path.activeLesson.label, 'Ma caisse du jour');
-  });
-
-  test('salarié + épargne → coffre des imprévus', () {
-    final path = LearningPath.fromDiagnostic(
-      const Diagnostic(
-        activity: ActivityProfile.employee,
-        goal: FinancialGoal.emergencySave,
-        pace: DailyPace.recommended,
+        goals: ['budget'],
+        level: 'beginner',
+        energy: 'calm',
+        avatar: 'sage',
       ),
     );
     expect(path.activeLesson.id, 'emergency');
   });
 
-  test('étudiant + mobile money → frais MM', () {
+  test('objectif épargne → imprévus', () {
     final path = LearningPath.fromDiagnostic(
       const Diagnostic(
-        activity: ActivityProfile.student,
-        goal: FinancialGoal.mobileMoney,
-        pace: DailyPace.intense,
+        goals: ['save_project'],
+        level: 'curious',
+        energy: 'recommended',
+        avatar: 'sage',
+      ),
+    );
+    expect(path.activeLesson.id, 'emergency');
+  });
+
+  test('objectif investissement → mobile money', () {
+    final path = LearningPath.fromDiagnostic(
+      const Diagnostic(
+        goals: ['invest'],
+        level: 'economist',
+        energy: 'intense',
+        avatar: 'visionnaire',
       ),
     );
     expect(path.activeLesson.id, 'mobile_money');

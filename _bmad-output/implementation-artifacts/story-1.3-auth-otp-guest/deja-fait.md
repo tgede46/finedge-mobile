@@ -1,3 +1,3 @@
 # Déjà fait
 
-Rien pour l'instant. Le mode invité local (sans OTP) est dans la story 1.2.
+Écran d'accueil signup (Google / Apple) et écran login e-mail. OTP réel et backend : encore dans `a-faire.md`.

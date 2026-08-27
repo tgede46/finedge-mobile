@@ -31,7 +31,6 @@ class LearningPath {
   PathNodeData get activeLesson =>
       nodes.firstWhere((node) => node.status == PathNodeStatus.active);
 
-  /// Premier nœud actif = activité commerçante → caisse, sinon l'objectif.
   factory LearningPath.fromDiagnostic(Diagnostic diagnostic) {
     final firstId = _firstLessonId(diagnostic);
     final ordered = [
@@ -63,19 +62,9 @@ class LearningPath {
   ];
 
   static String _firstLessonId(Diagnostic diagnostic) {
-    if (diagnostic.goal == FinancialGoal.mobileMoney) {
-      return 'mobile_money';
-    }
-    if (diagnostic.goal == FinancialGoal.emergencySave &&
-        diagnostic.activity != ActivityProfile.merchant &&
-        diagnostic.activity != ActivityProfile.pagneSeller) {
-      return 'emergency';
-    }
-    if (diagnostic.activity == ActivityProfile.merchant ||
-        diagnostic.activity == ActivityProfile.pagneSeller ||
-        diagnostic.goal == FinancialGoal.cashbox) {
-      return 'cashbox';
-    }
-    return 'emergency';
+    if (diagnostic.wantsInvest) return 'mobile_money';
+    if (diagnostic.wantsCashbox) return 'cashbox';
+    if (diagnostic.wantsEmergency) return 'emergency';
+    return 'cashbox';
   }
 }

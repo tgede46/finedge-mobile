@@ -2,7 +2,8 @@
 
 | Dossier | Story | Statut |
 | :--- | :--- | :--- |
-| [refactor-widgets](refactor-widgets/) | Dossier `lib/widgets/` | déjà fait |
+| [accueil-navbar](accueil-navbar/) | Accueil + navbar 5 onglets | déjà fait |
+| [onboarding-get-started-diagnostic](onboarding-get-started-diagnostic/) | Get Started + diagnostic soft UI | déjà fait |
 | [story-1.1-design-system](story-1.1-design-system/) | 1.1 Design system & 4 onglets | déjà fait |
 | [story-1.2-onboarding-diagnostic](story-1.2-onboarding-diagnostic/) | 1.2 Diagnostic & sentier | déjà fait (reste vérif appareil) |
 | [story-1.3-auth-otp-guest](story-1.3-auth-otp-guest/) | 1.3 OTP & invité | à faire |

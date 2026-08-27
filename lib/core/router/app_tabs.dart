@@ -1,7 +1,8 @@
-/// Labels des 4 onglets fixes (UX-DR06).
+/// Labels des 5 onglets (navbar capture recrutement).
 abstract final class AppTabs {
-  static const String sentier = 'Sentier';
+  static const String accueil = 'Accueil';
+  static const String lecons = 'Leçons';
   static const String simulateur = 'Simulateur';
-  static const String coach = 'Coach IA';
+  static const String coach = 'Coach';
   static const String profil = 'Profil';
 }

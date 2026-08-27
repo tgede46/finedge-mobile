@@ -5,7 +5,6 @@ import '../models/guest_session.dart';
 import '../models/learning_path.dart';
 import 'session_store.dart';
 
-/// Contrôleur MVC de session invité + diagnostic.
 class SessionController extends ChangeNotifier {
   SessionController({SessionStore? store, GuestSession? initial})
     : _store = store ?? MemorySessionStore(),
@@ -20,6 +19,8 @@ class SessionController extends ChangeNotifier {
 
   GuestSession get session => _session;
   bool get isOnboarded => _session.isOnboarded;
+  bool get hasSeenIntro => _session.hasSeenIntro;
+  bool get isSignedIn => _session.isSignedIn;
   LearningPath get path => _session.path;
 
   Future<void> restore() async {
@@ -30,8 +31,24 @@ class SessionController extends ChangeNotifier {
     }
   }
 
+  Future<void> completeIntro() async {
+    _session = _session.copyWith(hasSeenIntro: true);
+    await _store.save(_session);
+    notifyListeners();
+  }
+
+  Future<void> signIn({required String provider}) async {
+    _session = _session.copyWith(hasSeenIntro: true, authProvider: provider);
+    await _store.save(_session);
+    notifyListeners();
+  }
+
   Future<void> completeOnboarding(Diagnostic diagnostic) async {
-    _session = _session.copyWith(diagnostic: diagnostic);
+    _session = _session.copyWith(
+      diagnostic: diagnostic,
+      hasSeenIntro: true,
+      authProvider: _session.authProvider ?? 'guest',
+    );
     await _store.save(_session);
     notifyListeners();
   }

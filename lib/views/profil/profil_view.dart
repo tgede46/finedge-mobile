@@ -15,6 +15,8 @@ class ProfilView extends StatelessWidget {
     final diagnostic = SessionScope.of(context).session.diagnostic;
     final subtitle = diagnostic == null
         ? 'Mode local · progrès conservés sur l’appareil'
+        : diagnostic.age != null
+        ? '${diagnostic.age} ans · ${diagnostic.pace.label}'
         : '${diagnostic.activity.label} · ${diagnostic.pace.label}';
 
     return ColoredBox(
@@ -24,7 +26,12 @@ class ProfilView extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
           children: [
-            GuestProfileCard(subtitle: subtitle),
+            GuestProfileCard(
+              displayName: diagnostic?.displayName?.trim().isNotEmpty == true
+                  ? diagnostic!.displayName!.trim()
+                  : 'Invité',
+              subtitle: subtitle,
+            ),
             const SizedBox(height: 24),
             Text('Trophées', style: AppTypography.heading),
             const SizedBox(height: 12),

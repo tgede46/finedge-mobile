@@ -3,13 +3,23 @@ import 'package:findge/controllers/session_store.dart';
 import 'package:findge/models/diagnostic.dart';
 
 Future<SessionController> onboardedSession({
-  ActivityProfile activity = ActivityProfile.merchant,
-  FinancialGoal goal = FinancialGoal.cashbox,
-  DailyPace pace = DailyPace.recommended,
+  List<String> goals = const ['budget'],
+  String level = 'curious',
+  String energy = 'recommended',
+  String avatar = 'entrepreneur',
+  String displayName = 'Awa',
+  int age = 22,
 }) async {
   final session = SessionController(store: MemorySessionStore());
   await session.completeOnboarding(
-    Diagnostic(activity: activity, goal: goal, pace: pace),
+    Diagnostic(
+      goals: goals,
+      level: level,
+      energy: energy,
+      avatar: avatar,
+      displayName: displayName,
+      age: age,
+    ),
   );
   return session;
 }

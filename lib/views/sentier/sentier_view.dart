@@ -53,7 +53,7 @@ class SentierView extends StatelessWidget {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Ton sentier est tracé',
+                        'Tes leçons',
                         style: AppTypography.title.copyWith(
                           color: AppColors.onPrimary,
                         ),
