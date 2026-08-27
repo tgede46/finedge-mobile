@@ -9,11 +9,13 @@ Convention Git Flow pour tous les dépôts :
 
 ## 🐙 Les 3 Dépôts GitHub du Projet
 
+**Chantier actuel** : l'app mobile se construit **dans ce dépôt** (`findge`). Backend et admin restent des dépôts séparés.
+
 | Dépôt GitHub | Stack Technologique | Rôle Principal | Fichier des Spécifications |
 | :--- | :--- | :--- | :--- |
-| **`finedge-backend`** | FastAPI, PostgreSQL 16, Alembic, Docker | API REST, Moteur Sync, MFA, Passerelle IA | 📄 [`BACKEND_GITHUB_ISSUES.md`](file:///home/gedeonkp/Documents/projet/FinEdge/_bmad-output/planning-artifacts/issues/BACKEND_GITHUB_ISSUES.md) |
-| **`finedge-admin`** | Next.js 16, Tailwind, shadcn/ui, TanStack | Landing Page, CMS Miroir BD, Multi-Rôles, Analytics | 📄 [`ADMIN_GITHUB_ISSUES.md`](file:///home/gedeonkp/Documents/projet/FinEdge/_bmad-output/planning-artifacts/issues/ADMIN_GITHUB_ISSUES.md) |
-| **`finedge-mobile`** | Flutter 3.x, Isar (Offline-First), Matt Font | App Grand Public, Sentier 3D, BD Vente de Pagnes | 📄 [`MOBILE_GITHUB_ISSUES.md`](file:///home/gedeonkp/Documents/projet/FinEdge/_bmad-output/planning-artifacts/issues/MOBILE_GITHUB_ISSUES.md) |
+| **`finedge-backend`** | FastAPI, PostgreSQL 16, Alembic, Docker | API REST, Moteur Sync, MFA, Passerelle IA | 📄 [`BACKEND_GITHUB_ISSUES.md`](BACKEND_GITHUB_ISSUES.md) |
+| **`finedge-admin`** | Next.js 16, Tailwind, shadcn/ui, TanStack | Landing Page, CMS Miroir BD, Multi-Rôles, Analytics | 📄 [`ADMIN_GITHUB_ISSUES.md`](ADMIN_GITHUB_ISSUES.md) |
+| **`findge` (ce dépôt = mobile)** | Flutter 3.x, MVC MVP, Matt Font | App Grand Public, Sentier, BD Vente de Pagnes | 📄 [`MOBILE_GITHUB_ISSUES.md`](MOBILE_GITHUB_ISSUES.md) |
 
 ---
 
