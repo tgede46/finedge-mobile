@@ -58,15 +58,42 @@ class AccueilView extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 18),
-            const HomeStatsRow(streak: 0, xp: 0, lessonsDone: 0),
+            HomeStatsRow(
+              streak: session.streakDays,
+              xp: session.xp,
+              lessonsDone: session.hasCompletedFirstLesson ? 1 : 0,
+            ),
             const SizedBox(height: 18),
             HomeContinueCard(
-              title: 'Continuer ta leçon',
-              subtitle: session.diagnostic == null
-                  ? 'Découvre le budget en FCFA en 3 minutes.'
-                  : 'Reprends là où tu t’es arrêté.',
-              onPressed: () => context.go('/lecons'),
+              title: session.hasCompletedFirstLesson
+                  ? 'Continuer ta leçon'
+                  : 'Commencer ta 1ʳᵉ leçon',
+              subtitle: session.hasCompletedFirstLesson
+                  ? 'Reprends là où tu t’es arrêté.'
+                  : '3 minutes · découvre le budget en FCFA.',
+              onPressed: () {
+                if (session.hasCompletedFirstLesson) {
+                  context.go('/lecons');
+                } else {
+                  context.push('/premiere-lecon');
+                }
+              },
             ),
+            if (session.isStreakGoalReached) ...[
+              const SizedBox(height: 12),
+              HomeContinueCard(
+                title: 'Objectif de série atteint !',
+                subtitle: '4 questions pour affiner ton prochain défi.',
+                onPressed: () => context.push('/renouvellement-serie'),
+              ),
+            ] else if (session.hasCompletedFirstLesson &&
+                session.streakGoalDays != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Série : ${session.streakDays} / ${session.streakGoalDays} jours',
+                style: AppTypography.label.copyWith(color: SoftUiColors.muted),
+              ),
+            ],
             const SizedBox(height: 22),
             Text(
               'Raccourcis',
@@ -86,10 +113,10 @@ class AccueilView extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: HomeQuickAction(
-                    icon: Icons.show_chart,
-                    label: 'Simulateur',
+                    icon: Icons.emoji_events_rounded,
+                    label: 'Classement',
                     color: const Color(0xFF81C784),
-                    onTap: () => context.go('/simulateur'),
+                    onTap: () => context.go('/classement'),
                   ),
                 ),
                 const SizedBox(width: 10),

@@ -1,24 +1,23 @@
 import 'package:flutter/material.dart';
 
-import '../core/theme/soft_ui_colors.dart';
-
-/// Catalogue d’avatars FinEdge.
+/// Catalogue d’avatars FinEdge (animaux de la quête).
 ///
-/// Pour l’instant : icônes Material + teinte.
-/// Plus tard : remplacer `icon` par un asset SVG/PNG (`assetPath`) sans changer les IDs.
+/// Sans PNG : emoji temporaire. Déposer `assets/avatars/{id}.png` pour remplacer.
 class AvatarSpec {
   const AvatarSpec({
     required this.id,
     required this.title,
-    required this.subtitle,
-    required this.icon,
+    required this.emoji,
     required this.tint,
+    this.subtitle = '',
+    this.icon = Icons.pets_rounded,
     this.assetPath,
   });
 
   final String id;
   final String title;
   final String subtitle;
+  final String emoji;
   final IconData icon;
   final Color tint;
   final String? assetPath;
@@ -27,55 +26,65 @@ class AvatarSpec {
 abstract final class AvatarCatalog {
   static const List<AvatarSpec> all = [
     AvatarSpec(
-      id: 'entrepreneur',
-      title: "L'Entrepreneur",
-      subtitle: 'Commerçant local',
-      icon: Icons.storefront_rounded,
-      tint: Color(0xFFFFB74D),
+      id: 'explorateur',
+      title: 'Explorateur',
+      emoji: '🦊',
+      tint: Color(0xFFFFE0B2),
+      assetPath: 'assets/avatars/explorateur.png',
     ),
     AvatarSpec(
-      id: 'sage',
-      title: 'Le Sage',
-      subtitle: "Figure d'expérience",
-      icon: Icons.menu_book_rounded,
-      tint: Color(0xFFBCAAA4),
+      id: 'stratege',
+      title: 'Stratège',
+      emoji: '🦉',
+      tint: Color(0xFFE8EAF6),
+      assetPath: 'assets/avatars/stratege.png',
     ),
     AvatarSpec(
       id: 'batisseur',
-      title: 'Le Bâtisseur',
-      subtitle: 'Projets ambitieux',
-      icon: Icons.construction_rounded,
-      tint: Color(0xFFFFCC80),
+      title: 'Bâtisseur',
+      emoji: '🐻',
+      tint: Color(0xFFFFECB3),
+      assetPath: 'assets/avatars/batisseur.png',
     ),
     AvatarSpec(
-      id: 'commercante',
-      title: 'La Commerçante',
-      subtitle: 'Vente au marché',
-      icon: Icons.shopping_bag_rounded,
-      tint: Color(0xFFF8BBD0),
+      id: 'chanceux',
+      title: 'Chanceux',
+      emoji: '🐱',
+      tint: Color(0xFFFFEBEE),
+      assetPath: 'assets/avatars/chanceux.png',
     ),
     AvatarSpec(
-      id: 'etudiant',
-      title: "L'Étudiant",
-      subtitle: 'Apprentissage constant',
-      icon: Icons.school_rounded,
-      tint: Color(0xFF90CAF9),
+      id: 'econome',
+      title: 'Économe',
+      emoji: '🐿️',
+      tint: Color(0xFFFFF3E0),
+      assetPath: 'assets/avatars/econome.png',
     ),
     AvatarSpec(
-      id: 'visionnaire',
-      title: 'Le Visionnaire',
-      subtitle: 'Grandes idées',
-      icon: Icons.insights_rounded,
-      tint: Color(0xFFCE93D8),
+      id: 'patient',
+      title: 'Patient',
+      emoji: '🐢',
+      tint: Color(0xFFE8F5E9),
+      assetPath: 'assets/avatars/patient.png',
     ),
   ];
 
+  /// Anciens IDs → nouveaux (sessions déjà sauvées).
+  static const _legacy = {
+    'entrepreneur': 'explorateur',
+    'sage': 'stratege',
+    'commercante': 'chanceux',
+    'etudiant': 'econome',
+    'visionnaire': 'patient',
+  };
+
   static AvatarSpec byId(String? id) {
-    return all.firstWhere((a) => a.id == id, orElse: () => all.first);
+    final resolved = _legacy[id] ?? id;
+    return all.firstWhere((a) => a.id == resolved, orElse: () => all.first);
   }
 }
 
-/// Pastille avatar réutilisable (Profil, Accueil, onboarding).
+/// Pastille avatar (Profil, Accueil, classement).
 class FinedgeAvatar extends StatelessWidget {
   const FinedgeAvatar({
     super.key,
@@ -94,7 +103,7 @@ class FinedgeAvatar extends StatelessWidget {
     final child = CircleAvatar(
       radius: radius,
       backgroundColor: spec.tint,
-      child: Icon(spec.icon, size: radius * 0.95, color: SoftUiColors.ink),
+      child: _AvatarFace(spec: spec, size: radius * 1.35),
     );
 
     if (onTap == null) return child;
@@ -103,5 +112,27 @@ class FinedgeAvatar extends StatelessWidget {
       customBorder: const CircleBorder(),
       child: child,
     );
+  }
+}
+
+class _AvatarFace extends StatelessWidget {
+  const _AvatarFace({required this.spec, required this.size});
+
+  final AvatarSpec spec;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    if (spec.assetPath != null) {
+      return Image.asset(
+        spec.assetPath!,
+        width: size,
+        height: size,
+        fit: BoxFit.contain,
+        errorBuilder: (_, error, stackTrace) =>
+            Text(spec.emoji, style: TextStyle(fontSize: size * 0.72)),
+      );
+    }
+    return Text(spec.emoji, style: TextStyle(fontSize: size * 0.72));
   }
 }

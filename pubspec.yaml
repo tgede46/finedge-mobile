@@ -24,6 +24,7 @@ flutter:
   assets:
     - assets/icons/
     - assets/animations/
+    - assets/avatars/
   # Police Matt (Fontfabric) — déposer Regular/Medium/Bold/Black ici :
   # fonts:
   #   - family: Matt

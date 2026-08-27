@@ -7,11 +7,16 @@ import '../../views/auth/login_view.dart';
 import '../../views/auth/welcome_view.dart';
 import '../../views/coach/coach_view.dart';
 import '../../views/intro/intro_view.dart';
+import '../../views/lecon/first_lesson_flow_view.dart';
+import '../../views/lecon/lesson_complete_view.dart';
+import '../../views/lecon/lesson_intro_view.dart';
+import '../../views/lecon/streak_goal_view.dart';
+import '../../views/lecon/streak_renewal_flow_view.dart';
 import '../../views/onboarding/onboarding_view.dart';
 import '../../views/profil/profil_view.dart';
 import '../../views/sentier/sentier_view.dart';
 import '../../views/shell/main_shell_view.dart';
-import '../../views/simulateur/simulateur_view.dart';
+import '../../views/classement/classement_view.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
@@ -64,6 +69,44 @@ GoRouter createAppRouter({required SessionController session}) {
         name: 'onboarding',
         builder: (context, state) => const OnboardingView(),
       ),
+      GoRoute(
+        path: '/premiere-lecon',
+        name: 'premiere-lecon',
+        builder: (context, state) => const FirstLessonFlowView(),
+      ),
+      GoRoute(
+        path: '/lecon/:id',
+        name: 'lecon',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final id = state.pathParameters['id'] ?? 'besoins_envies';
+          return LessonIntroView(lessonId: id);
+        },
+      ),
+      GoRoute(
+        path: '/lecon-complete',
+        name: 'lecon-complete',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final xp = int.tryParse(state.uri.queryParameters['xp'] ?? '') ?? 125;
+          final next = state.uri.queryParameters['next'] ?? '/lecons';
+          return LessonCompleteView(xpEarned: xp, nextRoute: next);
+        },
+      ),
+      GoRoute(
+        path: '/objectif-serie',
+        name: 'objectif-serie',
+        builder: (context, state) {
+          final renew = state.uri.queryParameters['renew'] == '1';
+          if (renew) return const StreakRenewalFlowView();
+          return const StreakGoalView();
+        },
+      ),
+      GoRoute(
+        path: '/renouvellement-serie',
+        name: 'renouvellement-serie',
+        builder: (context, state) => const StreakRenewalFlowView(),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return MainShellView(navigationShell: navigationShell);
@@ -90,9 +133,9 @@ GoRouter createAppRouter({required SessionController session}) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/simulateur',
-                name: 'simulateur',
-                builder: (context, state) => const SimulateurView(),
+                path: '/classement',
+                name: 'classement',
+                builder: (context, state) => const ClassementView(),
               ),
             ],
           ),

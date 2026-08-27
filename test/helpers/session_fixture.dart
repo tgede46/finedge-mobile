@@ -6,9 +6,9 @@ Future<SessionController> onboardedSession({
   List<String> goals = const ['budget'],
   String level = 'curious',
   String energy = 'recommended',
-  String avatar = 'entrepreneur',
+  String avatar = 'explorateur',
   String displayName = 'Awa',
-  int age = 22,
+  String age = '18_25',
 }) async {
   final session = SessionController(store: MemorySessionStore());
   await session.completeOnboarding(

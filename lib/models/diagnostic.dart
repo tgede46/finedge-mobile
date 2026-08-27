@@ -48,7 +48,9 @@ class Diagnostic {
   /// entrepreneur | student | professional | civil_servant | merchant | other
   final String? occupation;
   final String? displayName;
-  final int? age;
+
+  /// Intervalle d’âge : under_18 | 18_25 | 26_35 | 36_45 | 46_60 | 60_plus
+  final String? age;
   final String? startMode;
 
   DailyPace get pace => switch (energy) {
@@ -72,11 +74,18 @@ class Diagnostic {
       case 'other':
         return ActivityProfile.other;
     }
-    if (avatar == 'entrepreneur' || avatar == 'commercante') {
+    if (avatar == 'explorateur' ||
+        avatar == 'chanceux' ||
+        avatar == 'entrepreneur' ||
+        avatar == 'commercante') {
       return ActivityProfile.merchant;
     }
-    if (avatar == 'etudiant') return ActivityProfile.student;
-    if (avatar == 'sage') return ActivityProfile.employee;
+    if (avatar == 'econome' || avatar == 'etudiant') {
+      return ActivityProfile.student;
+    }
+    if (avatar == 'stratege' || avatar == 'sage') {
+      return ActivityProfile.employee;
+    }
     return ActivityProfile.merchant;
   }
 
@@ -84,6 +93,7 @@ class Diagnostic {
       goals.contains('commerce') ||
       occupation == 'merchant' ||
       occupation == 'entrepreneur' ||
+      avatar == 'chanceux' ||
       avatar == 'commercante';
 
   bool get wantsMobileMoney =>
@@ -119,10 +129,10 @@ class Diagnostic {
         },
         level: 'beginner',
         energy: json['pace'] as String? ?? 'recommended',
-        avatar: 'entrepreneur',
+        avatar: 'explorateur',
         occupation: json['activity'] as String?,
         displayName: json['displayName'] as String?,
-        age: json['age'] as int?,
+        age: _parseAge(json['age'] ?? json['ageRange']),
       );
     }
     if (json.containsKey('activities')) {
@@ -131,9 +141,9 @@ class Diagnostic {
         goals: priorities.isEmpty ? ['save_project'] : priorities,
         level: 'beginner',
         energy: json['pace'] as String? ?? 'recommended',
-        avatar: 'entrepreneur',
+        avatar: 'explorateur',
         displayName: json['displayName'] as String?,
-        age: json['age'] as int?,
+        age: _parseAge(json['age'] ?? json['ageRange']),
       );
     }
 
@@ -147,13 +157,35 @@ class Diagnostic {
       goals: listOf('goals'),
       level: json['level'] as String? ?? 'beginner',
       energy: json['energy'] as String? ?? 'recommended',
-      avatar: json['avatar'] as String? ?? 'entrepreneur',
+      avatar: json['avatar'] as String? ?? 'explorateur',
       occupation: json['occupation'] as String?,
       displayName: json['displayName'] as String?,
-      age: json['age'] is int
-          ? json['age'] as int
-          : int.tryParse('${json['age'] ?? ''}'),
+      age: _parseAge(json['age'] ?? json['ageRange']),
       startMode: json['startMode'] as String?,
     );
+  }
+
+  /// Accepte un id d’intervalle ou un ancien âge numérique.
+  static String? _parseAge(dynamic raw) {
+    if (raw == null) return null;
+    if (raw is String && raw.isNotEmpty) {
+      if (raw.contains('_') || raw == 'under_18' || raw == '60_plus') {
+        return raw;
+      }
+      final n = int.tryParse(raw);
+      if (n != null) return _fromInt(n);
+      return raw;
+    }
+    if (raw is int) return _fromInt(raw);
+    return null;
+  }
+
+  static String _fromInt(int n) {
+    if (n < 18) return 'under_18';
+    if (n <= 25) return '18_25';
+    if (n <= 35) return '26_35';
+    if (n <= 45) return '36_45';
+    if (n <= 60) return '46_60';
+    return '60_plus';
   }
 }

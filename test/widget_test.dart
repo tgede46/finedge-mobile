@@ -10,14 +10,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'helpers/session_fixture.dart';
 
 Future<void> _tapNext(WidgetTester tester) async {
-  final suivant = find.text('SUIVANT');
-  final next = find.text('Suivant');
-  if (suivant.evaluate().isNotEmpty) {
-    await tester.tap(suivant);
-  } else {
-    await tester.tap(next.first);
+  final suivants = [
+    find.text('SUIVANT'),
+    find.text('Suivant'),
+    find.text('C’est parti'),
+    find.text('Continuer'),
+  ];
+  for (final f in suivants) {
+    if (f.evaluate().isNotEmpty) {
+      await tester.tap(f.first);
+      await tester.pumpAndSettle();
+      return;
+    }
   }
-  await tester.pumpAndSettle();
+  fail('Aucun bouton suivant trouvé');
 }
 
 void main() {
@@ -34,7 +40,7 @@ void main() {
     expect(find.text(AppTabs.accueil), findsWidgets);
   });
 
-  testWidgets('Get Started puis métier en premier', (tester) async {
+  testWidgets('Commencer puis mieux te comprendre', (tester) async {
     await tester.pumpWidget(
       FinEdgeApp(session: SessionController(store: MemorySessionStore())),
     );
@@ -42,7 +48,11 @@ void main() {
     await tester.tap(find.text('Commencer'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Et toi, tu fais quoi dans la vie ?'), findsOneWidget);
+    expect(
+      find.text('Quelques questions pour mieux te comprendre'),
+      findsOneWidget,
+    );
+    expect(find.textContaining('sentier financier'), findsNothing);
   });
 
   testWidgets('parcours jeu jusqu’à l’accueil', (tester) async {
@@ -52,6 +62,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Commencer'));
     await tester.pumpAndSettle();
+    await _tapNext(tester);
 
     await tester.tap(find.text('Étudiant'));
     await tester.pump();
@@ -65,17 +76,10 @@ void main() {
     await tester.pump();
     await _tapNext(tester);
 
-    expect(find.text('Ce qu’on sait déjà'), findsOneWidget);
-    await tester.tap(find.text('Continuer vers mes objectifs'));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Mieux gérer mon budget'));
-    await tester.pump();
+    expect(find.text('Ton profil'), findsOneWidget);
     await _tapNext(tester);
 
-    await tester.ensureVisible(find.text("L'Étudiant"));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text("L'Étudiant"));
+    await tester.tap(find.text('Mieux gérer mon budget'));
     await tester.pump();
     await _tapNext(tester);
 
@@ -84,10 +88,15 @@ void main() {
     await tester.pump();
     await _tapNext(tester);
 
-    expect(find.text('Quel âge as-tu ?'), findsOneWidget);
-    await tester.enterText(find.byType(TextField).first, '22');
+    await tester.tap(find.text('18 – 25 ans'));
     await tester.pump();
     await _tapNext(tester);
+
+    expect(find.text('Choisissez votre Avatar'), findsOneWidget);
+    await tester.tap(find.text('Stratège'));
+    await tester.pump();
+    await tester.tap(find.text('Commencer l’Aventure'));
+    await tester.pumpAndSettle();
 
     expect(find.textContaining('Ne perds pas ta progression'), findsOneWidget);
     await tester.tap(find.text('Plus tard'));

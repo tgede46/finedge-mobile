@@ -65,4 +65,53 @@ class SessionController extends ChangeNotifier {
     await _store.save(_session);
     notifyListeners();
   }
+
+  Future<void> completeFirstLesson({
+    required int xpEarned,
+    required int streakGoalDays,
+  }) async {
+    _session = _session.copyWith(
+      hasCompletedFirstLesson: true,
+      xp: _session.xp + xpEarned,
+      streakDays: _session.streakDays <= 0 ? 1 : _session.streakDays,
+      streakGoalDays: streakGoalDays,
+    );
+    await _store.save(_session);
+    notifyListeners();
+  }
+
+  Future<void> setStreakGoal(int streakGoalDays) async {
+    _session = _session.copyWith(streakGoalDays: streakGoalDays);
+    await _store.save(_session);
+    notifyListeners();
+  }
+
+  /// Nouvelle série après objectif atteint (+ réponses approfondies).
+  Future<void> renewStreakGoal({
+    required Map<String, String> deepenAnswers,
+    required int nextGoalDays,
+  }) async {
+    final reward = switch (_session.streakGoalDays) {
+      7 => 70,
+      30 => 300,
+      50 => 500,
+      _ => 50,
+    };
+    _session = _session.copyWith(
+      deepenAnswers: {..._session.deepenAnswers, ...deepenAnswers},
+      streakGoalDays: nextGoalDays,
+      streakDays: 0,
+      xp: _session.xp + reward,
+    );
+    await _store.save(_session);
+    notifyListeners();
+  }
+
+  /// Simule / enregistre une progression de série (leçons quotidiennes).
+  Future<void> registerPracticeDay() async {
+    final next = _session.streakDays + 1;
+    _session = _session.copyWith(streakDays: next);
+    await _store.save(_session);
+    notifyListeners();
+  }
 }

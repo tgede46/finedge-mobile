@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../controllers/session_scope.dart';
 import '../../core/theme/app_typography.dart';
@@ -16,8 +15,7 @@ import '../../widgets/duo_question_scaffold.dart';
 import '../../widgets/mascot_speech_header.dart';
 import '../../widgets/onboarding_progress_header.dart';
 
-/// Parcours jeu : métier → niveau → rythme → résumé → objectifs → avatar
-/// → nom / âge → (optionnel) créer profil. Pas d’e-mail / mot de passe ici.
+/// Parcours : mieux te comprendre → métier → niveau → rythme → …
 class OnboardingView extends StatefulWidget {
   const OnboardingView({super.key});
 
@@ -26,135 +24,87 @@ class OnboardingView extends StatefulWidget {
 }
 
 class _OnboardingViewState extends State<OnboardingView> {
-  /// 0 métier · 1 niveau · 2 rythme · 3 résumé · 4 objectifs
-  /// · 5 avatar · 6 nom · 7 âge · 8 créer profil (sans mail)
-  static const _totalSteps = 9;
+  /// 0 intro · 1 métier · 2 niveau · 3 rythme · 4 résumé
+  /// · 5 objectifs · 6 nom · 7 âge · 8 avatar · 9 profil
+  static const _totalSteps = 10;
 
   int _step = 0;
   String? _occupation;
   String? _level;
   String? _energy;
   String? _avatar;
+  String? _ageRange;
   final Set<String> _goals = {};
 
   final _nameController = TextEditingController();
-  final _ageController = TextEditingController();
+
+  static const _ageRanges = [
+    ('under_18', 'Moins de 18 ans'),
+    ('18_25', '18 – 25 ans'),
+    ('26_35', '26 – 35 ans'),
+    ('36_45', '36 – 45 ans'),
+    ('46_60', '46 – 60 ans'),
+    ('60_plus', 'Plus de 60 ans'),
+  ];
 
   static const _occupations = [
-    (
-      'entrepreneur',
-      'Entrepreneur',
-      'Je lance ou je développe mon activité.',
-      Icons.rocket_launch_outlined,
-    ),
-    (
-      'merchant',
-      'Commerçant / vendeur',
-      'Boutique, marché, vente au quotidien.',
-      Icons.storefront_outlined,
-    ),
-    (
-      'student',
-      'Étudiant',
-      'Études, stage, premier budget perso.',
-      Icons.school_outlined,
-    ),
-    (
-      'professional',
-      'Professionnel / salarié',
-      'Salaire, épargne, projets de vie.',
-      Icons.work_outline,
-    ),
-    (
-      'civil_servant',
-      'Fonctionnaire',
-      'Revenu stable, organisation du budget.',
-      Icons.account_balance_outlined,
-    ),
-    ('other', 'Autre', 'Une situation un peu différente.', Icons.more_horiz),
+    ('entrepreneur', 'Entrepreneur', Icons.rocket_launch_outlined),
+    ('merchant', 'Commerçant', Icons.storefront_outlined),
+    ('student', 'Étudiant', Icons.school_outlined),
+    ('professional', 'Professionnel', Icons.work_outline),
+    ('civil_servant', 'Fonctionnaire', Icons.account_balance_outlined),
+    ('other', 'Autre', Icons.more_horiz),
   ];
 
   static const _levels = [
-    ('beginner', 'Je débute complètement', 'Je découvre la gestion d’argent.'),
-    ('basics', 'Je connais quelques bases', 'Je gère un peu, sans méthode.'),
-    ('daily', 'Je gère mon quotidien', 'Budget simple, dépenses du mois.'),
-    ('solid', 'Je suis plutôt à l’aise', 'Je veux peaufiner et progresser.'),
-    ('economist', 'Presque économiste', 'Stratégie, marge, investissement.'),
+    ('beginner', 'Je débute complètement'),
+    ('basics', 'Je connais quelques bases'),
+    ('daily', 'Je gère mon quotidien'),
+    ('solid', 'Je suis plutôt à l’aise'),
+    ('economist', 'Presque économiste'),
   ];
 
   static const _energyOptions = [
-    ('calm', '3 min / jour', 'Tranquille — sans pression'),
-    ('recommended', '5 min / jour', 'Régulier — le rythme idéal'),
-    ('serious', '10 min / jour', 'Motivée — je veux avancer'),
-    ('intense', '15 min / jour', 'En feu — progression rapide'),
+    ('calm', '3 min / jour'),
+    ('recommended', '5 min / jour'),
+    ('serious', '10 min / jour'),
+    ('intense', '15 min / jour'),
   ];
 
   static const _goalOptions = [
-    (
-      'save_project',
-      'Épargner pour un projet précis',
-      'Moto, mariage, matériel, voyage…',
-      Icons.savings_outlined,
-    ),
-    (
-      'budget',
-      'Mieux gérer mon budget',
-      'Comprendre mes dépenses et éviter le découvert.',
-      Icons.account_balance_wallet_outlined,
-    ),
-    (
-      'commerce',
-      'Séparer caisse perso et business',
-      'Optimiser les bénéfices au quotidien.',
-      Icons.point_of_sale_outlined,
-    ),
-    (
-      'invest',
-      'Comprendre l’investissement',
-      'Faire fructifier mon argent, simplement.',
-      Icons.trending_up,
-    ),
-    (
-      'family',
-      'Mieux soutenir ma famille',
-      'Anticiper et partager sans se mettre en danger.',
-      Icons.family_restroom,
-    ),
-    (
-      'fun',
-      'Juste progresser à mon rythme',
-      'Apprendre pour le plaisir et la clarté.',
-      Icons.auto_awesome_outlined,
-    ),
+    ('save_project', 'Épargner pour un projet', Icons.savings_outlined),
+    ('budget', 'Mieux gérer mon budget', Icons.account_balance_wallet_outlined),
+    ('commerce', 'Séparer caisse et perso', Icons.point_of_sale_outlined),
+    ('invest', 'Comprendre l’investissement', Icons.trending_up),
+    ('family', 'Soutenir ma famille', Icons.family_restroom),
+    ('fun', 'Progresser à mon rythme', Icons.auto_awesome_outlined),
   ];
 
   @override
   void initState() {
     super.initState();
     _nameController.addListener(_onFormChanged);
-    _ageController.addListener(_onFormChanged);
   }
 
   @override
   void dispose() {
     _nameController.removeListener(_onFormChanged);
-    _ageController.removeListener(_onFormChanged);
     _nameController.dispose();
-    _ageController.dispose();
     super.dispose();
   }
 
   void _onFormChanged() => setState(() {});
 
   bool get _canContinue => switch (_step) {
-    0 => _occupation != null,
-    1 => _level != null,
-    2 => _energy != null,
-    3 => true,
-    4 => _goals.isNotEmpty,
-    5 => _avatar != null,
+    0 => true,
+    1 => _occupation != null,
+    2 => _level != null,
+    3 => _energy != null,
+    4 => true,
+    5 => _goals.isNotEmpty,
     6 => _nameController.text.trim().length >= 2,
-    7 => (int.tryParse(_ageController.text.trim()) ?? 0) >= 10,
+    7 => _ageRange != null,
+    8 => _avatar != null,
     _ => true,
   };
 
@@ -174,22 +124,9 @@ class _OnboardingViewState extends State<OnboardingView> {
 
   String get _energyLabel {
     for (final o in _energyOptions) {
-      if (o.$1 == _energy) return '${o.$2} · ${o.$3}';
+      if (o.$1 == _energy) return o.$2;
     }
     return '—';
-  }
-
-  String get _goalsSpeech {
-    return switch (_occupation) {
-      'entrepreneur' ||
-      'merchant' => 'Maintenant, où veux-tu aller avec ton activité ?',
-      'student' => 'Maintenant, où veux-tu aller en tant qu’étudiant ?',
-      'civil_servant' =>
-        'Maintenant, quels objectifs vises-tu en tant que fonctionnaire ?',
-      'professional' =>
-        'Maintenant, où veux-tu aller en tant que professionnel ?',
-      _ => 'Maintenant, quels objectifs veux-tu atteindre ?',
-    };
   }
 
   void _toggleGoal(String id) {
@@ -203,7 +140,6 @@ class _OnboardingViewState extends State<OnboardingView> {
   }
 
   Diagnostic _buildDiagnostic() {
-    final age = int.parse(_ageController.text.trim());
     final energy = switch (_energy) {
       'serious' => 'intense',
       _ => _energy!,
@@ -215,7 +151,7 @@ class _OnboardingViewState extends State<OnboardingView> {
       avatar: _avatar!,
       occupation: _occupation,
       displayName: _nameController.text.trim(),
-      age: age,
+      age: _ageRange,
       startMode: 'placed',
     );
   }
@@ -259,9 +195,11 @@ class _OnboardingViewState extends State<OnboardingView> {
 
   Widget _choiceShell({
     required String speech,
-    required List<Widget> children,
+    List<Widget>? children,
+    Widget? body,
     String ctaLabel = 'Suivant',
   }) {
+    assert(children != null || body != null);
     return Column(
       children: [
         OnboardingProgressHeader(
@@ -270,15 +208,16 @@ class _OnboardingViewState extends State<OnboardingView> {
           onBack: _step > 0 ? _back : null,
         ),
         const SizedBox(height: OnboardingSpacing.afterProgress),
+        // Bulle fixée : ne scrolle pas sous la barre de progression.
+        MascotSpeechHeader(message: speech),
+        const SizedBox(height: OnboardingSpacing.afterSpeech),
         Expanded(
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              MascotSpeechHeader(message: speech),
-              const SizedBox(height: OnboardingSpacing.afterSpeech),
-              ...children,
-            ],
-          ),
+          child:
+              body ??
+              ListView(
+                padding: const EdgeInsets.only(bottom: 8),
+                children: children!,
+              ),
         ),
         const SizedBox(height: OnboardingSpacing.beforeCta),
         ContinueCtaButton(
@@ -292,15 +231,40 @@ class _OnboardingViewState extends State<OnboardingView> {
 
   Widget _body() {
     return switch (_step) {
-      0 => _choiceShell(
-        speech: 'Et toi, tu fais quoi dans la vie ?',
+      0 => Column(
+        children: [
+          OnboardingProgressHeader(step: 1, total: _totalSteps),
+          const Spacer(),
+          const Icon(
+            Icons.support_agent_rounded,
+            size: 72,
+            color: SoftUiColors.orangeDeep,
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'Quelques questions pour mieux te comprendre',
+            textAlign: TextAlign.center,
+            style: AppTypography.display.copyWith(
+              color: SoftUiColors.ink,
+              fontSize: 26,
+            ),
+          ),
+          const Spacer(),
+          ContinueCtaButton(
+            enabled: true,
+            onPressed: _continue,
+            label: 'C’est parti',
+          ),
+        ],
+      ),
+      1 => _choiceShell(
+        speech: 'Tu fais quoi dans la vie ?',
         children: [
           for (final o in _occupations)
             DuoChoiceTile(
               title: o.$2,
-              subtitle: o.$3,
               leading: Icon(
-                o.$4,
+                o.$3,
                 color: _occupation == o.$1
                     ? SoftUiColors.orangeDeep
                     : SoftUiColors.muted,
@@ -310,13 +274,12 @@ class _OnboardingViewState extends State<OnboardingView> {
             ),
         ],
       ),
-      1 => _choiceShell(
+      2 => _choiceShell(
         speech: 'Tu t’y connais comment en argent ?',
         children: [
           for (final o in _levels)
             DuoChoiceTile(
               title: o.$2,
-              subtitle: o.$3,
               leading: Icon(
                 Icons.signal_cellular_alt,
                 color: _level == o.$1
@@ -328,21 +291,20 @@ class _OnboardingViewState extends State<OnboardingView> {
             ),
         ],
       ),
-      2 => _choiceShell(
-        speech: 'Combien de temps veux-tu t’entraîner chaque jour ?',
+      3 => _choiceShell(
+        speech: 'Combien de temps par jour ?',
         children: [
           for (final o in _energyOptions)
             DuoChoiceTile(
               title: o.$2,
-              subtitle: o.$3,
               selected: _energy == o.$1,
               onTap: () => setState(() => _energy = o.$1),
             ),
         ],
       ),
-      3 => _choiceShell(
-        speech: 'Voici ce qu’on a retenu de toi. On continue ?',
-        ctaLabel: 'Continuer vers mes objectifs',
+      4 => _choiceShell(
+        speech: 'Voici ce qu’on a retenu.',
+        ctaLabel: 'Continuer',
         children: [
           _PersonSummaryCard(
             occupation: _occupationLabel,
@@ -351,15 +313,14 @@ class _OnboardingViewState extends State<OnboardingView> {
           ),
         ],
       ),
-      4 => _choiceShell(
-        speech: _goalsSpeech,
+      5 => _choiceShell(
+        speech: 'Quel est ton objectif ?',
         children: [
           for (final o in _goalOptions)
             DuoChoiceTile(
               title: o.$2,
-              subtitle: o.$3,
               leading: Icon(
-                o.$4,
+                o.$3,
                 color: _goals.contains(o.$1)
                     ? SoftUiColors.orangeDeep
                     : SoftUiColors.muted,
@@ -368,30 +329,6 @@ class _OnboardingViewState extends State<OnboardingView> {
               showCheck: true,
               onTap: () => _toggleGoal(o.$1),
             ),
-        ],
-      ),
-      5 => _choiceShell(
-        speech: 'Choisis l’avatar qui te représentera dans ta quête.',
-        children: [
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: AvatarCatalog.all.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 0.92,
-            ),
-            itemBuilder: (context, index) {
-              final spec = AvatarCatalog.all[index];
-              return AvatarOptionCard(
-                spec: spec,
-                selected: _avatar == spec.id,
-                onTap: () => setState(() => _avatar = spec.id),
-              );
-            },
-          ),
         ],
       ),
       6 => DuoQuestionScaffold(
@@ -409,24 +346,65 @@ class _OnboardingViewState extends State<OnboardingView> {
           showValid: _nameController.text.trim().length >= 2,
         ),
       ),
-      7 => DuoQuestionScaffold(
-        step: 8,
-        total: _totalSteps,
-        title: 'Quel âge as-tu ?',
-        onBack: _back,
-        ctaLabel: 'SUIVANT',
-        ctaEnabled: _canContinue,
-        onCta: _continue,
-        child: DuoOutlineField(
-          controller: _ageController,
-          hint: 'Âge',
-          keyboardType: TextInputType.number,
-          inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-            LengthLimitingTextInputFormatter(2),
-          ],
-          showValid: (int.tryParse(_ageController.text.trim()) ?? 0) >= 10,
-        ),
+      7 => _choiceShell(
+        speech: 'Quelle est ta tranche d’âge ?',
+        children: [
+          for (final o in _ageRanges)
+            DuoChoiceTile(
+              title: o.$2,
+              selected: _ageRange == o.$1,
+              onTap: () => setState(() => _ageRange = o.$1),
+            ),
+        ],
+      ),
+      8 => Column(
+        children: [
+          OnboardingProgressHeader(
+            step: _step + 1,
+            total: _totalSteps,
+            onBack: _back,
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.only(top: 12, bottom: 8),
+              children: [
+                Text(
+                  'Choisissez votre Avatar',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.display.copyWith(
+                    color: SoftUiColors.ink,
+                    fontSize: 26,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: AvatarCatalog.all.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 8,
+                    crossAxisSpacing: 8,
+                    childAspectRatio: 0.95,
+                  ),
+                  itemBuilder: (context, index) {
+                    final spec = AvatarCatalog.all[index];
+                    return AvatarOptionCard(
+                      spec: spec,
+                      selected: _avatar == spec.id,
+                      onTap: () => setState(() => _avatar = spec.id),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          ContinueCtaButton(
+            enabled: _canContinue,
+            onPressed: _continue,
+            label: 'Commencer l’Aventure',
+          ),
+        ],
       ),
       _ => Column(
         children: [
@@ -470,18 +448,13 @@ class _PersonSummaryCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Ce qu’on sait déjà',
+            'Ton profil',
             style: AppTypography.title.copyWith(color: SoftUiColors.ink),
           ),
           const SizedBox(height: 16),
           _row(Icons.work_outline, 'Métier', occupation),
           _row(Icons.signal_cellular_alt, 'Niveau', level),
           _row(Icons.schedule_outlined, 'Rythme', energy, last: true),
-          const SizedBox(height: 14),
-          Text(
-            'Ensuite : tes objectifs, ton avatar, puis ton prénom.',
-            style: AppTypography.body.copyWith(color: SoftUiColors.muted),
-          ),
         ],
       ),
     );
@@ -491,28 +464,15 @@ class _PersonSummaryCard extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(bottom: last ? 0 : 14),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, size: 20, color: SoftUiColors.orangeDeep),
           const SizedBox(width: 12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: AppTypography.caption.copyWith(
-                    color: SoftUiColors.muted,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: AppTypography.optionTitle.copyWith(
-                    color: SoftUiColors.ink,
-                  ),
-                ),
-              ],
+            child: Text(
+              '$label · $value',
+              style: AppTypography.optionTitle.copyWith(
+                color: SoftUiColors.ink,
+              ),
             ),
           ),
         ],

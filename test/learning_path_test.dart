@@ -9,7 +9,7 @@ void main() {
         goals: ['budget'],
         level: 'beginner',
         energy: 'calm',
-        avatar: 'sage',
+        avatar: 'stratege',
       ),
     );
     expect(path.activeLesson.id, 'emergency');
@@ -21,7 +21,7 @@ void main() {
         goals: ['save_project'],
         level: 'curious',
         energy: 'recommended',
-        avatar: 'sage',
+        avatar: 'stratege',
       ),
     );
     expect(path.activeLesson.id, 'emergency');
@@ -33,7 +33,7 @@ void main() {
         goals: ['invest'],
         level: 'economist',
         energy: 'intense',
-        avatar: 'visionnaire',
+        avatar: 'patient',
       ),
     );
     expect(path.activeLesson.id, 'mobile_money');

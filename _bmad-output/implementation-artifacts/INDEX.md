@@ -2,6 +2,7 @@
 
 | Dossier | Story | Statut |
 | :--- | :--- | :--- |
+| [premiere-lecon-streak](premiere-lecon-streak/) | Post-1ʳᵉ leçon XP + série | déjà fait |
 | [accueil-navbar](accueil-navbar/) | Accueil + navbar 5 onglets | déjà fait |
 | [onboarding-get-started-diagnostic](onboarding-get-started-diagnostic/) | Get Started + diagnostic soft UI | déjà fait |
 | [story-1.1-design-system](story-1.1-design-system/) | 1.1 Design system & 4 onglets | déjà fait |

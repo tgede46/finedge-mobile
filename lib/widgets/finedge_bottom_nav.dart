@@ -17,7 +17,11 @@ class FinedgeBottomNav extends StatelessWidget {
   static const _items = [
     (Icons.home_outlined, Icons.home_rounded, AppTabs.accueil),
     (Icons.menu_book_outlined, Icons.menu_book_rounded, AppTabs.lecons),
-    (Icons.show_chart, Icons.show_chart, AppTabs.simulateur),
+    (
+      Icons.emoji_events_outlined,
+      Icons.emoji_events_rounded,
+      AppTabs.classement,
+    ),
     (Icons.smart_toy_outlined, Icons.smart_toy, AppTabs.coach),
     (Icons.person_outline, Icons.person, AppTabs.profil),
   ];
