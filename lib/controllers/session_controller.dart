@@ -45,11 +45,16 @@ class SessionController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> completeOnboarding(Diagnostic diagnostic) async {
+  Future<void> completeOnboarding(
+    Diagnostic diagnostic, {
+    String? email,
+    String? authProvider,
+  }) async {
     _session = _session.copyWith(
       diagnostic: diagnostic,
       hasSeenIntro: true,
-      authProvider: _session.authProvider ?? 'guest',
+      email: email,
+      authProvider: authProvider ?? _session.authProvider ?? 'guest',
     );
     await _store.save(_session);
     notifyListeners();

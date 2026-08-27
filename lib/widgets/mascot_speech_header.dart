@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_typography.dart';
 import '../core/theme/soft_ui_colors.dart';
 
-/// Mascotte + bulle de dialogue (style Duolingo).
+/// Mascotte coach (icône, plus d’emoji) + bulle de dialogue.
 class MascotSpeechHeader extends StatelessWidget {
   const MascotSpeechHeader({super.key, required this.message});
 
@@ -23,7 +23,11 @@ class MascotSpeechHeader extends StatelessWidget {
             border: Border.all(color: SoftUiColors.border),
           ),
           alignment: Alignment.center,
-          child: const Text('🦉', style: TextStyle(fontSize: 34)),
+          child: const Icon(
+            Icons.support_agent_rounded,
+            size: 34,
+            color: SoftUiColors.orangeDeep,
+          ),
         ),
         const SizedBox(width: 12),
         Expanded(

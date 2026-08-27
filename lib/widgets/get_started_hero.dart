@@ -67,9 +67,10 @@ class GetStartedHero extends StatelessWidget {
                     ],
                   ),
                   alignment: Alignment.center,
-                  child: Text(
-                    '🦉',
-                    style: TextStyle(fontSize: mascotSize * 0.42),
+                  child: Icon(
+                    Icons.support_agent_rounded,
+                    size: mascotSize * 0.42,
+                    color: SoftUiColors.orangeDeep,
                   ),
                 ),
                 const Spacer(flex: 2),

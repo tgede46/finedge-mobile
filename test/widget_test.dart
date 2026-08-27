@@ -9,6 +9,17 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'helpers/session_fixture.dart';
 
+Future<void> _tapNext(WidgetTester tester) async {
+  final suivant = find.text('SUIVANT');
+  final next = find.text('Suivant');
+  if (suivant.evaluate().isNotEmpty) {
+    await tester.tap(suivant);
+  } else {
+    await tester.tap(next.first);
+  }
+  await tester.pumpAndSettle();
+}
+
 void main() {
   testWidgets('applique le thème Fintech et les onglets', (tester) async {
     await tester.pumpWidget(FinEdgeApp(session: await onboardedSession()));
@@ -23,62 +34,63 @@ void main() {
     expect(find.text(AppTabs.accueil), findsWidgets);
   });
 
-  testWidgets('Get Started puis onboarding style Duolingo', (tester) async {
+  testWidgets('Get Started puis métier en premier', (tester) async {
     await tester.pumpWidget(
       FinEdgeApp(session: SessionController(store: MemorySessionStore())),
     );
     await tester.pumpAndSettle();
     await tester.tap(find.text('Commencer'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Tu t’y connais comment en argent ?'), findsOneWidget);
-  });
-
-  testWidgets('parcours Duolingo jusqu’à l’accueil', (tester) async {
-    await tester.pumpWidget(
-      FinEdgeApp(session: SessionController(store: MemorySessionStore())),
-    );
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Commencer'));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Je connais quelques bases'));
-    await tester.pump();
-    await tester.tap(find.text('Continuer'));
     await tester.pumpAndSettle();
 
     expect(find.text('Et toi, tu fais quoi dans la vie ?'), findsOneWidget);
-    await tester.tap(find.text('Étudiant'));
-    await tester.pump();
-    await tester.tap(find.text('Continuer'));
+  });
+
+  testWidgets('parcours jeu jusqu’à l’accueil', (tester) async {
+    await tester.pumpWidget(
+      FinEdgeApp(session: SessionController(store: MemorySessionStore())),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Commencer'));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('étudiant'), findsOneWidget);
-    await tester.tap(find.text('Mieux gérer mon budget'));
+    await tester.tap(find.text('Étudiant'));
     await tester.pump();
-    await tester.tap(find.text('Continuer'));
-    await tester.pumpAndSettle();
+    await _tapNext(tester);
+
+    await tester.tap(find.text('Je connais quelques bases'));
+    await tester.pump();
+    await _tapNext(tester);
 
     await tester.tap(find.text('5 min / jour'));
     await tester.pump();
-    await tester.tap(find.text('Je m’engage'));
+    await _tapNext(tester);
+
+    expect(find.text('Ce qu’on sait déjà'), findsOneWidget);
+    await tester.tap(find.text('Continuer vers mes objectifs'));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('tu construis déjà'), findsOneWidget);
-    await tester.tap(find.text('Continuer'));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Trouver mon niveau'));
+    await tester.tap(find.text('Mieux gérer mon budget'));
     await tester.pump();
-    await tester.tap(find.text('Continuer'));
-    await tester.pumpAndSettle();
+    await _tapNext(tester);
 
-    expect(find.textContaining('comment on t’appelle'), findsOneWidget);
-    final fields = find.byType(TextField);
-    await tester.enterText(fields.at(0), 'Awa');
-    await tester.enterText(fields.at(1), '22');
+    await tester.ensureVisible(find.text("L'Étudiant"));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text("L'Étudiant"));
     await tester.pump();
-    await tester.tap(find.text("C'est parti ! 🚀"));
+    await _tapNext(tester);
+
+    expect(find.text('Comment t’appelles-tu ?'), findsOneWidget);
+    await tester.enterText(find.byType(TextField).first, 'Awa');
+    await tester.pump();
+    await _tapNext(tester);
+
+    expect(find.text('Quel âge as-tu ?'), findsOneWidget);
+    await tester.enterText(find.byType(TextField).first, '22');
+    await tester.pump();
+    await _tapNext(tester);
+
+    expect(find.textContaining('Ne perds pas ta progression'), findsOneWidget);
+    await tester.tap(find.text('Plus tard'));
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Salut Awa'), findsOneWidget);

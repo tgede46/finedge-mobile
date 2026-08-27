@@ -46,7 +46,11 @@ class IntroMascot extends StatelessWidget {
               child: child,
             );
           },
-          child: Text('🦉', style: TextStyle(fontSize: size * 0.44)),
+          child: Icon(
+            Icons.support_agent_rounded,
+            size: size * 0.44,
+            color: SoftUiColors.orangeDeep,
+          ),
         ),
       ),
     );

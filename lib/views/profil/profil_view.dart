@@ -4,6 +4,7 @@ import '../../controllers/session_scope.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/theme/soft_ui_colors.dart';
+import '../../models/avatar_catalog.dart';
 import '../../models/diagnostic.dart';
 import '../../models/mfa_method.dart';
 import '../../widgets/guest_profile_card.dart';
@@ -12,6 +13,49 @@ import '../../widgets/trophy_badge_tile.dart';
 
 class ProfilView extends StatelessWidget {
   const ProfilView({super.key});
+
+  void _showAvatarSheet(BuildContext context, String? avatarId) {
+    final spec = AvatarCatalog.byId(avatarId);
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: SoftUiColors.cream,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: SoftUiColors.border,
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                FinedgeAvatar(avatarId: avatarId, radius: 48),
+                const SizedBox(height: 14),
+                Text(
+                  spec.title,
+                  style: AppTypography.title.copyWith(color: SoftUiColors.ink),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  spec.subtitle,
+                  style: AppTypography.body.copyWith(color: SoftUiColors.muted),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +78,8 @@ class ProfilView extends StatelessWidget {
                   ? diagnostic!.displayName!.trim()
                   : 'Invité',
               subtitle: subtitle,
+              avatarId: diagnostic?.avatar,
+              onAvatarTap: () => _showAvatarSheet(context, diagnostic?.avatar),
             ),
             const SizedBox(height: 10),
             Text(

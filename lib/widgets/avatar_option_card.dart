@@ -1,20 +1,18 @@
 import 'package:flutter/material.dart';
 
+import '../core/theme/app_typography.dart';
 import '../core/theme/soft_ui_colors.dart';
+import '../models/avatar_catalog.dart';
 
 class AvatarOptionCard extends StatelessWidget {
   const AvatarOptionCard({
     super.key,
-    required this.title,
-    required this.subtitle,
-    required this.emoji,
+    required this.spec,
     required this.selected,
     required this.onTap,
   });
 
-  final String title;
-  final String subtitle;
-  final String emoji;
+  final AvatarSpec spec;
   final bool selected;
   final VoidCallback onTap;
 
@@ -37,40 +35,27 @@ class AvatarOptionCard extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: SoftUiColors.iconBg,
-                  border: Border.all(
-                    color: selected ? SoftUiColors.orange : SoftUiColors.border,
-                  ),
-                ),
-                alignment: Alignment.center,
-                child: Text(emoji, style: const TextStyle(fontSize: 34)),
+              CircleAvatar(
+                radius: 34,
+                backgroundColor: spec.tint,
+                child: Icon(spec.icon, size: 32, color: SoftUiColors.ink),
               ),
               const SizedBox(height: 10),
               Text(
-                title,
+                spec.title,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: AppTypography.optionTitle.copyWith(
                   color: SoftUiColors.ink,
-                  fontWeight: FontWeight.w800,
                   fontSize: 13,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
-                subtitle,
+                spec.subtitle,
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: SoftUiColors.muted,
-                  fontSize: 11,
-                  height: 1.2,
-                ),
+                style: AppTypography.optionSubtitle.copyWith(fontSize: 11),
               ),
             ],
           ),

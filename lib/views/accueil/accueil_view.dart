@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../controllers/session_scope.dart';
+import '../../core/theme/app_typography.dart';
 import '../../core/theme/soft_ui_colors.dart';
+import '../../models/avatar_catalog.dart';
 import '../../widgets/home_continue_card.dart';
 import '../../widgets/home_quick_action.dart';
 import '../../widgets/home_stats_row.dart';
@@ -15,8 +17,8 @@ class AccueilView extends StatelessWidget {
     final session = SessionScope.of(context).session;
     final name = session.diagnostic?.displayName?.trim();
     final greeting = (name != null && name.isNotEmpty)
-        ? 'Salut $name 👋'
-        : 'Salut 👋';
+        ? 'Salut $name'
+        : 'Salut';
 
     return ColoredBox(
       color: SoftUiColors.cream,
@@ -33,35 +35,25 @@ class AccueilView extends StatelessWidget {
                     children: [
                       Text(
                         greeting,
-                        style: const TextStyle(
+                        style: AppTypography.display.copyWith(
                           color: SoftUiColors.ink,
-                          fontWeight: FontWeight.w900,
                           fontSize: 26,
                         ),
                       ),
                       const SizedBox(height: 4),
-                      const Text(
+                      Text(
                         'Prêt pour ta quête financière ?',
-                        style: TextStyle(
+                        style: AppTypography.body.copyWith(
                           color: SoftUiColors.muted,
-                          fontSize: 14,
-                          height: 1.35,
                         ),
                       ),
                     ],
                   ),
                 ),
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: const BoxDecoration(
-                    color: SoftUiColors.tanSoft,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.smart_toy_outlined,
-                    color: SoftUiColors.orangeDeep,
-                  ),
+                FinedgeAvatar(
+                  avatarId: session.diagnostic?.avatar,
+                  radius: 24,
+                  onTap: () => context.go('/profil'),
                 ),
               ],
             ),
@@ -76,13 +68,9 @@ class AccueilView extends StatelessWidget {
               onPressed: () => context.go('/lecons'),
             ),
             const SizedBox(height: 22),
-            const Text(
+            Text(
               'Raccourcis',
-              style: TextStyle(
-                color: SoftUiColors.ink,
-                fontWeight: FontWeight.w800,
-                fontSize: 16,
-              ),
+              style: AppTypography.heading.copyWith(color: SoftUiColors.ink),
             ),
             const SizedBox(height: 12),
             Row(
@@ -107,7 +95,7 @@ class AccueilView extends StatelessWidget {
                 const SizedBox(width: 10),
                 Expanded(
                   child: HomeQuickAction(
-                    icon: Icons.smart_toy_outlined,
+                    icon: Icons.support_agent_rounded,
                     label: 'Coach',
                     color: const Color(0xFF90CAF9),
                     onTap: () => context.go('/coach'),
@@ -124,24 +112,20 @@ class AccueilView extends StatelessWidget {
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(color: SoftUiColors.border),
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Conseil du jour',
-                    style: TextStyle(
+                    style: AppTypography.label.copyWith(
                       color: SoftUiColors.orangeDeep,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 13,
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     'Sépare ton argent perso et ton argent business — même une petite caisse compte.',
-                    style: TextStyle(
+                    style: AppTypography.body.copyWith(
                       color: SoftUiColors.ink,
-                      fontSize: 14,
-                      height: 1.4,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
