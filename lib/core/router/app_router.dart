@@ -13,10 +13,12 @@ import '../../views/lecon/lesson_intro_view.dart';
 import '../../views/lecon/streak_goal_view.dart';
 import '../../views/lecon/streak_renewal_flow_view.dart';
 import '../../views/onboarding/onboarding_view.dart';
+import '../../views/profil/mfa_setup_view.dart';
 import '../../views/profil/profil_view.dart';
 import '../../views/sentier/sentier_view.dart';
 import '../../views/shell/main_shell_view.dart';
 import '../../views/classement/classement_view.dart';
+import '../../models/mfa_method.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(
   debugLabel: 'root',
@@ -91,6 +93,21 @@ GoRouter createAppRouter({required SessionController session}) {
           final xp = int.tryParse(state.uri.queryParameters['xp'] ?? '') ?? 125;
           final next = state.uri.queryParameters['next'] ?? '/lecons';
           return LessonCompleteView(xpEarned: xp, nextRoute: next);
+        },
+      ),
+      GoRoute(
+        path: '/mfa',
+        name: 'mfa',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const MfaSetupView(),
+      ),
+      GoRoute(
+        path: '/mfa/verify',
+        name: 'mfa-verify',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final id = state.uri.queryParameters['method'];
+          return MfaVerifyView(method: MfaMethodX.fromId(id));
         },
       ),
       GoRoute(

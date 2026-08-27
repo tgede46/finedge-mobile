@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../controllers/session_scope.dart';
 import '../../core/theme/app_colors.dart';
@@ -8,7 +9,6 @@ import '../../models/avatar_catalog.dart';
 import '../../models/diagnostic.dart';
 import '../../models/mfa_method.dart';
 import '../../widgets/guest_profile_card.dart';
-import '../../widgets/mfa_method_sheet.dart';
 import '../../widgets/trophy_badge_tile.dart';
 
 class ProfilView extends StatelessWidget {
@@ -43,11 +43,6 @@ class ProfilView extends StatelessWidget {
                 Text(
                   spec.title,
                   style: AppTypography.title.copyWith(color: SoftUiColors.ink),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  spec.subtitle,
-                  style: AppTypography.body.copyWith(color: SoftUiColors.muted),
                 ),
               ],
             ),
@@ -114,13 +109,7 @@ class ProfilView extends StatelessWidget {
                   style: AppTypography.caption,
                 ),
                 trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () {
-                  MfaMethodSheet.show(
-                    context,
-                    selected: session.mfaMethod,
-                    onSelected: controller.setMfaMethod,
-                  );
-                },
+                onTap: () => context.push('/mfa'),
               ),
             ),
           ],

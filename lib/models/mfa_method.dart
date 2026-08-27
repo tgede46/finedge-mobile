@@ -17,9 +17,9 @@ extension MfaMethodX on MfaMethod {
 
   String get description => switch (this) {
     MfaMethod.none => 'Pas de double vérification pour l’instant.',
-    MfaMethod.whatsapp => 'Code envoyé sur WhatsApp (à brancher story 1.3).',
-    MfaMethod.sms => 'Code envoyé par SMS (à brancher story 1.3).',
-    MfaMethod.authenticator => 'App d’authentification (à brancher story 1.3).',
+    MfaMethod.whatsapp => 'Code simulé comme sur WhatsApp.',
+    MfaMethod.sms => 'Code simulé comme par SMS.',
+    MfaMethod.authenticator => 'Code simulé comme une app Authenticator.',
   };
 
   static MfaMethod fromId(String? id) => switch (id) {
