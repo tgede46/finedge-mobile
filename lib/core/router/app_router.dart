@@ -106,8 +106,8 @@ GoRouter createAppRouter({required SessionController session}) {
         name: 'mfa-verify',
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) {
-          final id = state.uri.queryParameters['method'];
-          return MfaVerifyView(method: MfaMethodX.fromId(id));
+          final method = MfaMethodX.fromId(state.uri.queryParameters['method']);
+          return MfaVerifyView(method: method);
         },
       ),
       GoRoute(

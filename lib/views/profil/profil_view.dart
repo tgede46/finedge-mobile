@@ -44,6 +44,11 @@ class ProfilView extends StatelessWidget {
                   spec.title,
                   style: AppTypography.title.copyWith(color: SoftUiColors.ink),
                 ),
+                const SizedBox(height: 6),
+                Text(
+                  spec.subtitle,
+                  style: AppTypography.body.copyWith(color: SoftUiColors.muted),
+                ),
               ],
             ),
           ),

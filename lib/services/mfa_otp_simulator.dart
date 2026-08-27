@@ -2,8 +2,18 @@ import 'dart:math';
 
 import '../models/mfa_method.dart';
 
-/// Simulation locale OTP (WhatsApp / SMS / Authenticator).
-/// Remplaçable plus tard par une vraie API (story 1.3).
+enum MfaVerifyStatus { success, invalid, expired, noPending }
+
+class MfaVerifyResult {
+  const MfaVerifyResult({required this.status, this.method});
+
+  final MfaVerifyStatus status;
+  final MfaMethod? method;
+
+  bool get isOk => status == MfaVerifyStatus.success;
+}
+
+/// Simulation locale d’OTP (pas d’envoi réseau).
 class MfaOtpSimulator {
   MfaOtpSimulator._();
   static final instance = MfaOtpSimulator._();
@@ -13,66 +23,44 @@ class MfaOtpSimulator {
   MfaMethod? _pendingMethod;
   DateTime? _expiresAt;
 
+  static const ttl = Duration(minutes: 5);
+
   String? get lastSentCode => _pendingCode;
-  MfaMethod? get pendingMethod => _pendingMethod;
 
-  bool get hasActiveCode =>
-      _pendingCode != null &&
-      _expiresAt != null &&
-      DateTime.now().isBefore(_expiresAt!);
-
-  /// « Envoie » un code à 6 chiffres (valide 5 min).
+  /// Génère un code à 6 chiffres et le « envoie » (local).
   Future<String> sendCode(MfaMethod method) async {
-    await Future<void>.delayed(const Duration(milliseconds: 450));
-    if (method == MfaMethod.none) {
-      throw StateError('Aucun OTP pour la méthode none');
-    }
-    _pendingCode = (_random.nextInt(900000) + 100000).toString();
+    await Future<void>.delayed(const Duration(milliseconds: 350));
+    final code = List.generate(6, (_) => _random.nextInt(10)).join();
+    _pendingCode = code;
     _pendingMethod = method;
-    _expiresAt = DateTime.now().add(const Duration(minutes: 5));
-    return _pendingCode!;
+    _expiresAt = DateTime.now().add(ttl);
+    return code;
   }
 
-  /// Vérifie le code saisi.
   Future<MfaVerifyResult> verify(String input) async {
-    await Future<void>.delayed(const Duration(milliseconds: 280));
-    final code = input.trim();
-    if (_pendingCode == null || _pendingMethod == null) {
-      return MfaVerifyResult.noPending;
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+    final code = _pendingCode;
+    final method = _pendingMethod;
+    final expires = _expiresAt;
+
+    if (code == null || method == null || expires == null) {
+      return const MfaVerifyResult(status: MfaVerifyStatus.noPending);
     }
-    if (_expiresAt != null && DateTime.now().isAfter(_expiresAt!)) {
-      clear();
-      return MfaVerifyResult.expired;
+    if (DateTime.now().isAfter(expires)) {
+      _clear();
+      return const MfaVerifyResult(status: MfaVerifyStatus.expired);
     }
-    if (code != _pendingCode) {
-      return MfaVerifyResult.invalid;
+    final normalized = input.trim();
+    if (normalized != code) {
+      return const MfaVerifyResult(status: MfaVerifyStatus.invalid);
     }
-    final method = _pendingMethod!;
-    clear();
-    return MfaVerifyResult.success(method);
+    _clear();
+    return MfaVerifyResult(status: MfaVerifyStatus.success, method: method);
   }
 
-  void clear() {
+  void _clear() {
     _pendingCode = null;
     _pendingMethod = null;
     _expiresAt = null;
   }
-}
-
-enum MfaVerifyStatus { success, invalid, expired, noPending }
-
-class MfaVerifyResult {
-  const MfaVerifyResult._(this.status, [this.method]);
-
-  final MfaVerifyStatus status;
-  final MfaMethod? method;
-
-  static const invalid = MfaVerifyResult._(MfaVerifyStatus.invalid);
-  static const expired = MfaVerifyResult._(MfaVerifyStatus.expired);
-  static const noPending = MfaVerifyResult._(MfaVerifyStatus.noPending);
-
-  factory MfaVerifyResult.success(MfaMethod method) =>
-      MfaVerifyResult._(MfaVerifyStatus.success, method);
-
-  bool get isOk => status == MfaVerifyStatus.success;
 }
