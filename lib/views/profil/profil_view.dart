@@ -3,8 +3,11 @@ import 'package:flutter/material.dart';
 import '../../controllers/session_scope.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_typography.dart';
+import '../../core/theme/soft_ui_colors.dart';
 import '../../models/diagnostic.dart';
+import '../../models/mfa_method.dart';
 import '../../widgets/guest_profile_card.dart';
+import '../../widgets/mfa_method_sheet.dart';
 import '../../widgets/trophy_badge_tile.dart';
 
 class ProfilView extends StatelessWidget {
@@ -12,11 +15,11 @@ class ProfilView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final diagnostic = SessionScope.of(context).session.diagnostic;
+    final controller = SessionScope.of(context);
+    final session = controller.session;
+    final diagnostic = session.diagnostic;
     final subtitle = diagnostic == null
         ? 'Mode local · progrès conservés sur l’appareil'
-        : diagnostic.age != null
-        ? '${diagnostic.age} ans · ${diagnostic.pace.label}'
         : '${diagnostic.activity.label} · ${diagnostic.pace.label}';
 
     return ColoredBox(
@@ -31,6 +34,11 @@ class ProfilView extends StatelessWidget {
                   ? diagnostic!.displayName!.trim()
                   : 'Invité',
               subtitle: subtitle,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'ID local · ${session.localId}',
+              style: AppTypography.caption.copyWith(color: SoftUiColors.muted),
             ),
             const SizedBox(height: 24),
             Text('Trophées', style: AppTypography.heading),
@@ -56,11 +64,17 @@ class ProfilView extends StatelessWidget {
                 ),
                 title: Text('MFA à la carte', style: AppTypography.label),
                 subtitle: Text(
-                  'WhatsApp, SMS, Authenticator ou aucun',
+                  session.mfaMethod.label,
                   style: AppTypography.caption,
                 ),
                 trailing: const Icon(Icons.chevron_right_rounded),
-                onTap: () {},
+                onTap: () {
+                  MfaMethodSheet.show(
+                    context,
+                    selected: session.mfaMethod,
+                    onSelected: controller.setMfaMethod,
+                  );
+                },
               ),
             ),
           ],

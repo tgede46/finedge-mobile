@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 
 import '../../controllers/session_scope.dart';
+import '../../core/theme/app_typography.dart';
+import '../../core/theme/onboarding_spacing.dart';
 import '../../core/theme/soft_ui_colors.dart';
 import '../../models/diagnostic.dart';
 import '../../widgets/acquaintance_form_card.dart';
-import '../../widgets/avatar_option_card.dart';
 import '../../widgets/continue_cta_button.dart';
-import '../../widgets/goal_option_card.dart';
+import '../../widgets/duo_choice_tile.dart';
+import '../../widgets/mascot_speech_header.dart';
 import '../../widgets/onboarding_progress_header.dart';
 
+/// Onboarding Duolingo-like : métier + objectifs + rythme + profil.
 class OnboardingView extends StatefulWidget {
   const OnboardingView({super.key});
 
@@ -17,46 +20,115 @@ class OnboardingView extends StatefulWidget {
 }
 
 class _OnboardingViewState extends State<OnboardingView> {
-  static const _totalSteps = 3;
+  /// 0 niveau · 1 métier · 2 objectifs · 3 rythme · 4 feedback · 5 départ · 6 profil
+  static const _totalSteps = 7;
 
   int _step = 0;
-  String? _goal;
-  String? _avatar;
+  String? _level;
+  String? _occupation;
+  final Set<String> _goals = {};
+  String? _energy;
+  String? _startMode;
 
   final _nameController = TextEditingController();
   final _ageController = TextEditingController();
 
+  static const _levels = [
+    ('beginner', 'Je débute complètement', 'Je découvre la gestion d’argent.'),
+    ('basics', 'Je connais quelques bases', 'Je gère un peu, sans méthode.'),
+    ('daily', 'Je gère mon quotidien', 'Budget simple, dépenses du mois.'),
+    ('solid', 'Je suis plutôt à l’aise', 'Je veux peaufiner et progresser.'),
+    ('economist', 'Presque économiste', 'Stratégie, marge, investissement.'),
+  ];
+
+  static const _occupations = [
+    (
+      'entrepreneur',
+      'Entrepreneur',
+      'Je lance ou je développe mon activité.',
+      '🚀',
+    ),
+    (
+      'merchant',
+      'Commerçant / vendeur',
+      'Boutique, marché, vente au quotidien.',
+      '🏪',
+    ),
+    ('student', 'Étudiant', 'Études, stage, premier budget perso.', '🎒'),
+    (
+      'professional',
+      'Professionnel / salarié',
+      'Salaire, épargne, projets de vie.',
+      '💼',
+    ),
+    (
+      'civil_servant',
+      'Fonctionnaire',
+      'Revenu stable, organisation du budget.',
+      '🏛️',
+    ),
+    ('other', 'Autre', 'Une situation un peu différente.', '✨'),
+  ];
+
   static const _goalOptions = [
     (
       'save_project',
-      'Économiser pour un achat',
-      'vélo, console, voyage… apprends à mettre de côté.',
-      Icons.savings_outlined,
-      Color(0xFFFFB74D),
+      'Épargner pour un projet précis',
+      'Moto, mariage, matériel, voyage…',
+      '🎯',
     ),
     (
       'budget',
-      'Gérer mon budget',
-      "Comprendre mes dépenses et éviter d'être à découvert.",
-      Icons.account_balance_wallet_outlined,
-      Color(0xFFFFCA28),
+      'Mieux gérer mon budget',
+      'Comprendre mes dépenses et éviter le découvert.',
+      '👛',
+    ),
+    (
+      'commerce',
+      'Séparer caisse perso et business',
+      'Optimiser les bénéfices au quotidien.',
+      '🏪',
     ),
     (
       'invest',
-      "Comprendre l'investissement",
-      'Découvrir comment faire fructifier mon argent.',
-      Icons.trending_up,
-      Color(0xFF90CAF9),
+      'Comprendre l’investissement',
+      'Faire fructifier mon argent, simplement.',
+      '📈',
+    ),
+    (
+      'family',
+      'Mieux soutenir ma famille',
+      'Anticiper et partager sans se mettre en danger.',
+      '👨‍👩‍👧',
+    ),
+    (
+      'fun',
+      'Juste progresser à mon rythme',
+      'Apprendre pour le plaisir et la clarté.',
+      '✨',
     ),
   ];
 
-  static const _avatars = [
-    ('entrepreneur', "L'Entrepreneur", 'Commerçant local', '🏪'),
-    ('sage', 'Le Sage', "Figure d'expérience", '🧓'),
-    ('batisseur', 'Le Bâtisseur', 'Projets ambitieux', '👷'),
-    ('commercante', 'La Commerçante', 'Vente au marché', '🧺'),
-    ('etudiant', "L'Étudiant", 'Apprentissage constant', '🎒'),
-    ('visionnaire', 'Le Visionnaire', 'Grandes idées', '✨'),
+  static const _energyOptions = [
+    ('calm', '3 min / jour', 'Tranquille — sans pression'),
+    ('recommended', '5 min / jour', 'Régulier — le rythme idéal'),
+    ('serious', '10 min / jour', 'Motivée — je veux avancer'),
+    ('intense', '15 min / jour', 'En feu — progression rapide'),
+  ];
+
+  static const _startOptions = [
+    (
+      'scratch',
+      'Commencer depuis zéro',
+      'Les bases d’abord, pas à pas.',
+      false,
+    ),
+    (
+      'placed',
+      'Trouver mon niveau',
+      'On adapte le sentier à ton profil.',
+      true,
+    ),
   ];
 
   @override
@@ -78,12 +150,65 @@ class _OnboardingViewState extends State<OnboardingView> {
   void _onFormChanged() => setState(() {});
 
   bool get _canContinue => switch (_step) {
-    0 => _goal != null,
-    1 => _avatar != null,
+    0 => _level != null,
+    1 => _occupation != null,
+    2 => _goals.isNotEmpty,
+    3 => _energy != null,
+    4 => true,
+    5 => _startMode != null,
     _ =>
       _nameController.text.trim().length >= 2 &&
           (int.tryParse(_ageController.text.trim()) ?? 0) >= 10,
   };
+
+  String get _ctaLabel => switch (_step) {
+    3 => 'Je m’engage',
+    6 => "C'est parti ! 🚀",
+    _ => 'Continuer',
+  };
+
+  String get _goalsSpeech {
+    return switch (_occupation) {
+      'entrepreneur' || 'merchant' =>
+        'En tant qu’indépendant, quel est ton objectif prioritaire ?',
+      'student' => 'En tant qu’étudiant, qu’est-ce que tu veux accomplir ?',
+      'civil_servant' => 'En tant que fonctionnaire, quel est ton objectif ?',
+      'professional' =>
+        'En tant que professionnel, qu’est-ce qui compte le plus pour toi ?',
+      _ => 'Quel est ton objectif avec FinEdge ?',
+    };
+  }
+
+  String get _feedbackMessage {
+    final words = switch (_energy) {
+      'calm' => 'une base solide',
+      'serious' => 'des habitudes fortes',
+      'intense' => 'un vrai coup d’avance',
+      _ => 'de vrais progrès dès la 1ère semaine',
+    };
+    return 'Avec ce rythme, tu construis déjà $words !';
+  }
+
+  String get _avatarFromContext {
+    return switch (_occupation) {
+      'merchant' => 'commercante',
+      'entrepreneur' => 'entrepreneur',
+      'student' => 'etudiant',
+      'civil_servant' || 'professional' => 'sage',
+      _ when _goals.contains('invest') => 'visionnaire',
+      _ => 'entrepreneur',
+    };
+  }
+
+  void _toggleGoal(String id) {
+    setState(() {
+      if (_goals.contains(id)) {
+        _goals.remove(id);
+      } else {
+        _goals.add(id);
+      }
+    });
+  }
 
   Future<void> _continue() async {
     if (!_canContinue) return;
@@ -93,14 +218,21 @@ class _OnboardingViewState extends State<OnboardingView> {
     }
 
     final age = int.parse(_ageController.text.trim());
+    final energy = switch (_energy) {
+      'serious' => 'intense',
+      _ => _energy!,
+    };
+
     await SessionScope.of(context).completeOnboarding(
       Diagnostic(
-        goals: [_goal!],
-        level: age < 18 ? 'beginner' : (age < 30 ? 'curious' : 'solid'),
-        energy: 'recommended',
-        avatar: _avatar!,
+        goals: _goals.toList(),
+        level: _level!,
+        energy: energy,
+        avatar: _avatarFromContext,
+        occupation: _occupation,
         displayName: _nameController.text.trim(),
         age: age,
+        startMode: _startMode,
       ),
     );
   }
@@ -112,46 +244,37 @@ class _OnboardingViewState extends State<OnboardingView> {
       backgroundColor: SoftUiColors.cream,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+          padding: const EdgeInsets.fromLTRB(
+            OnboardingSpacing.screenH,
+            OnboardingSpacing.screenTop,
+            OnboardingSpacing.screenH,
+            OnboardingSpacing.screenBottom,
+          ),
           child: Column(
             children: [
               OnboardingProgressHeader(
                 step: _step + 1,
                 total: _totalSteps,
-                rightLabel: isLast ? 'Finalisation' : null,
                 onBack: _step > 0 ? () => setState(() => _step -= 1) : null,
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: OnboardingSpacing.afterProgress),
               Expanded(child: _body()),
+              const SizedBox(height: OnboardingSpacing.beforeCta),
+              ContinueCtaButton(
+                enabled: _canContinue,
+                onPressed: _continue,
+                label: _ctaLabel,
+                showArrow: !isLast,
+              ),
               if (isLast) ...[
-                ContinueCtaButton(
-                  enabled: _canContinue,
-                  onPressed: _continue,
-                  label: "C'est parti ! 🚀",
-                  showArrow: false,
-                ),
                 const SizedBox(height: 12),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.lock_outline,
-                      size: 14,
-                      color: SoftUiColors.muted,
-                    ),
-                    SizedBox(width: 6),
-                    Text(
-                      'Données sécurisées et privées',
-                      style: TextStyle(
-                        color: SoftUiColors.muted,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+                Text(
+                  'Données sécurisées et privées',
+                  style: AppTypography.caption.copyWith(
+                    color: SoftUiColors.muted,
+                  ),
                 ),
-              ] else
-                ContinueCtaButton(enabled: _canContinue, onPressed: _continue),
+              ],
             ],
           ),
         ),
@@ -159,17 +282,130 @@ class _OnboardingViewState extends State<OnboardingView> {
     );
   }
 
+  Widget _stepList({required String speech, required List<Widget> children}) {
+    return ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        MascotSpeechHeader(message: speech),
+        const SizedBox(height: OnboardingSpacing.afterSpeech),
+        ...children,
+      ],
+    );
+  }
+
   Widget _body() {
     return switch (_step) {
-      0 => _GoalsStep(
-        selected: _goal,
-        onSelect: (id) => setState(() => _goal = id),
+      0 => _stepList(
+        speech: 'Tu t’y connais comment en argent ?',
+        children: [
+          for (final o in _levels)
+            DuoChoiceTile(
+              title: o.$2,
+              subtitle: o.$3,
+              leading: Icon(
+                Icons.signal_cellular_alt,
+                color: _level == o.$1
+                    ? SoftUiColors.orangeDeep
+                    : SoftUiColors.muted,
+              ),
+              selected: _level == o.$1,
+              onTap: () => setState(() => _level = o.$1),
+            ),
+        ],
       ),
-      1 => _AvatarStep(
-        selected: _avatar,
-        onSelect: (id) => setState(() => _avatar = id),
+      1 => _stepList(
+        speech: 'Et toi, tu fais quoi dans la vie ?',
+        children: [
+          for (final o in _occupations)
+            DuoChoiceTile(
+              title: o.$2,
+              subtitle: o.$3,
+              leading: Text(o.$4, style: const TextStyle(fontSize: 22)),
+              selected: _occupation == o.$1,
+              onTap: () => setState(() => _occupation = o.$1),
+            ),
+        ],
       ),
-      _ => ListView(
+      2 => _stepList(
+        speech: _goalsSpeech,
+        children: [
+          for (final o in _goalOptions)
+            DuoChoiceTile(
+              title: o.$2,
+              subtitle: o.$3,
+              leading: Text(o.$4, style: const TextStyle(fontSize: 22)),
+              selected: _goals.contains(o.$1),
+              showCheck: true,
+              onTap: () => _toggleGoal(o.$1),
+            ),
+        ],
+      ),
+      3 => _stepList(
+        speech: 'Combien de temps veux-tu t’entraîner chaque jour ?',
+        children: [
+          for (final o in _energyOptions)
+            DuoChoiceTile(
+              title: o.$2,
+              subtitle: o.$3,
+              selected: _energy == o.$1,
+              onTap: () => setState(() => _energy = o.$1),
+            ),
+        ],
+      ),
+      4 => _stepList(
+        speech: _feedbackMessage,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+            decoration: BoxDecoration(
+              color: SoftUiColors.card,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: SoftUiColors.border),
+            ),
+            child: Column(
+              children: [
+                const Text('🔥', style: TextStyle(fontSize: 44)),
+                const SizedBox(height: 14),
+                Text(
+                  'La régularité bat l’intensité.',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.title.copyWith(color: SoftUiColors.ink),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Même 5 minutes par jour changent ta relation à l’argent.',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.body.copyWith(color: SoftUiColors.muted),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+      5 => _stepList(
+        speech: 'Par où veux-tu commencer ton sentier ?',
+        children: [
+          for (final o in _startOptions)
+            DuoChoiceTile(
+              title: o.$2,
+              subtitle: o.$3,
+              badge: o.$4 ? 'RECOMMANDÉ' : null,
+              leading: Icon(
+                o.$1 == 'scratch'
+                    ? Icons.menu_book_outlined
+                    : Icons.explore_outlined,
+                color: _startMode == o.$1
+                    ? SoftUiColors.orangeDeep
+                    : SoftUiColors.muted,
+              ),
+              selected: _startMode == o.$1,
+              onTap: () => setState(() => _startMode = o.$1),
+            ),
+        ],
+      ),
+      _ => _stepList(
+        speech: 'Dis-moi comment on t’appelle, et ton âge !',
         children: [
           AcquaintanceFormCard(
             nameController: _nameController,
@@ -178,103 +414,5 @@ class _OnboardingViewState extends State<OnboardingView> {
         ],
       ),
     };
-  }
-}
-
-class _GoalsStep extends StatelessWidget {
-  const _GoalsStep({required this.selected, required this.onSelect});
-
-  final String? selected;
-  final ValueChanged<String> onSelect;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        const Text(
-          'Quel est ton objectif ?',
-          style: TextStyle(
-            color: SoftUiColors.orangeDeep,
-            fontWeight: FontWeight.w900,
-            fontSize: 26,
-          ),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          'Choisis ce que tu veux accomplir en premier avec FinEdge.',
-          style: TextStyle(
-            color: SoftUiColors.muted,
-            fontSize: 14,
-            height: 1.4,
-          ),
-        ),
-        const SizedBox(height: 20),
-        for (final g in _OnboardingViewState._goalOptions)
-          GoalOptionCard(
-            title: g.$2,
-            description: g.$3,
-            icon: g.$4,
-            iconBackground: g.$5,
-            selected: selected == g.$1,
-            onTap: () => onSelect(g.$1),
-          ),
-      ],
-    );
-  }
-}
-
-class _AvatarStep extends StatelessWidget {
-  const _AvatarStep({required this.selected, required this.onSelect});
-
-  final String? selected;
-  final ValueChanged<String> onSelect;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        const Text(
-          'Choisis ton Avatar',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: SoftUiColors.orangeDeep,
-            fontWeight: FontWeight.w900,
-            fontSize: 26,
-          ),
-        ),
-        const SizedBox(height: 8),
-        const Text(
-          'Sélectionne le compagnon qui te représentera dans ta quête financière.',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: SoftUiColors.muted,
-            fontSize: 14,
-            height: 1.4,
-          ),
-        ),
-        const SizedBox(height: 18),
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: _OnboardingViewState._avatars.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: 0.92,
-          ),
-          itemBuilder: (context, index) {
-            final a = _OnboardingViewState._avatars[index];
-            return AvatarOptionCard(
-              title: a.$2,
-              subtitle: a.$3,
-              emoji: a.$4,
-              selected: selected == a.$1,
-              onTap: () => onSelect(a.$1),
-            );
-          },
-        ),
-      ],
-    );
   }
 }

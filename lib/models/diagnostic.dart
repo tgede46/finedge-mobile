@@ -1,13 +1,22 @@
-enum ActivityProfile { merchant, pagneSeller, employee, student }
+enum ActivityProfile {
+  merchant,
+  entrepreneur,
+  employee,
+  civilServant,
+  student,
+  other,
+}
 
 enum DailyPace { calm, recommended, intense }
 
 extension ActivityProfileX on ActivityProfile {
   String get label => switch (this) {
     ActivityProfile.merchant => 'Commerçant',
-    ActivityProfile.pagneSeller => 'Vendeur de pagnes',
-    ActivityProfile.employee => 'Salarié',
+    ActivityProfile.entrepreneur => 'Entrepreneur',
+    ActivityProfile.employee => 'Professionnel',
+    ActivityProfile.civilServant => 'Fonctionnaire',
     ActivityProfile.student => 'Étudiant',
+    ActivityProfile.other => 'Autre',
   };
 }
 
@@ -25,16 +34,22 @@ class Diagnostic {
     required this.level,
     required this.energy,
     required this.avatar,
+    this.occupation,
     this.displayName,
     this.age,
+    this.startMode,
   });
 
   final List<String> goals;
   final String level;
   final String energy;
   final String avatar;
+
+  /// entrepreneur | student | professional | civil_servant | merchant | other
+  final String? occupation;
   final String? displayName;
   final int? age;
+  final String? startMode;
 
   DailyPace get pace => switch (energy) {
     'calm' => DailyPace.calm,
@@ -43,6 +58,20 @@ class Diagnostic {
   };
 
   ActivityProfile get activity {
+    switch (occupation) {
+      case 'entrepreneur':
+        return ActivityProfile.entrepreneur;
+      case 'merchant':
+        return ActivityProfile.merchant;
+      case 'student':
+        return ActivityProfile.student;
+      case 'civil_servant':
+        return ActivityProfile.civilServant;
+      case 'professional':
+        return ActivityProfile.employee;
+      case 'other':
+        return ActivityProfile.other;
+    }
     if (avatar == 'entrepreneur' || avatar == 'commercante') {
       return ActivityProfile.merchant;
     }
@@ -52,7 +81,10 @@ class Diagnostic {
   }
 
   bool get wantsCashbox =>
-      goals.contains('commerce') || avatar == 'commercante';
+      goals.contains('commerce') ||
+      occupation == 'merchant' ||
+      occupation == 'entrepreneur' ||
+      avatar == 'commercante';
 
   bool get wantsMobileMoney =>
       goals.contains('overdraft') || goals.contains('budget');
@@ -60,7 +92,8 @@ class Diagnostic {
   bool get wantsEmergency =>
       goals.contains('save_project') ||
       goals.contains('overdraft') ||
-      goals.contains('budget');
+      goals.contains('budget') ||
+      goals.contains('family');
 
   bool get wantsInvest => goals.contains('invest');
 
@@ -69,12 +102,13 @@ class Diagnostic {
     'level': level,
     'energy': energy,
     'avatar': avatar,
+    if (occupation != null) 'occupation': occupation,
     if (displayName != null) 'displayName': displayName,
     if (age != null) 'age': age,
+    if (startMode != null) 'startMode': startMode,
   };
 
   static Diagnostic fromJson(Map<String, dynamic> json) {
-    // Anciens formats
     if (json.containsKey('activity') && json.containsKey('goal')) {
       final goal = json['goal'] as String;
       return Diagnostic(
@@ -86,6 +120,7 @@ class Diagnostic {
         level: 'beginner',
         energy: json['pace'] as String? ?? 'recommended',
         avatar: 'entrepreneur',
+        occupation: json['activity'] as String?,
         displayName: json['displayName'] as String?,
         age: json['age'] as int?,
       );
@@ -113,10 +148,12 @@ class Diagnostic {
       level: json['level'] as String? ?? 'beginner',
       energy: json['energy'] as String? ?? 'recommended',
       avatar: json['avatar'] as String? ?? 'entrepreneur',
+      occupation: json['occupation'] as String?,
       displayName: json['displayName'] as String?,
       age: json['age'] is int
           ? json['age'] as int
           : int.tryParse('${json['age'] ?? ''}'),
+      startMode: json['startMode'] as String?,
     );
   }
 }

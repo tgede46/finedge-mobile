@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/theme/app_typography.dart';
 import '../core/theme/soft_ui_colors.dart';
 
 class ContinueCtaButton extends StatelessWidget {
@@ -37,7 +38,9 @@ class ContinueCtaButton extends StatelessWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+              style: AppTypography.button.copyWith(
+                color: enabled ? Colors.white : SoftUiColors.muted,
+              ),
             ),
             if (showArrow) ...[
               const SizedBox(width: 8),

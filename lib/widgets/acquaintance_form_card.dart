@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../core/theme/app_typography.dart';
 import '../core/theme/soft_ui_colors.dart';
 
-/// Formulaire final : prénom / pseudo + âge (capture « Faisons connaissance »).
+/// Formulaire final : prénom / pseudo + âge.
 class AcquaintanceFormCard extends StatelessWidget {
   const AcquaintanceFormCard({
     super.key,
@@ -18,7 +19,7 @@ class AcquaintanceFormCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+      padding: const EdgeInsets.fromLTRB(20, 22, 20, 20),
       decoration: BoxDecoration(
         color: SoftUiColors.card,
         borderRadius: BorderRadius.circular(20),
@@ -27,8 +28,8 @@ class AcquaintanceFormCard extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            width: 64,
-            height: 64,
+            width: 60,
+            height: 60,
             decoration: const BoxDecoration(
               color: SoftUiColors.iconBg,
               shape: BoxShape.circle,
@@ -36,30 +37,25 @@ class AcquaintanceFormCard extends StatelessWidget {
             child: const Icon(
               Icons.person_add_alt_1_rounded,
               color: SoftUiColors.ink,
-              size: 30,
+              size: 28,
             ),
           ),
-          const SizedBox(height: 16),
-          const Text(
+          const SizedBox(height: 14),
+          Text(
             'Faisons connaissance !',
             textAlign: TextAlign.center,
-            style: TextStyle(
-              color: SoftUiColors.ink,
-              fontWeight: FontWeight.w900,
-              fontSize: 22,
-            ),
+            style: AppTypography.title.copyWith(color: SoftUiColors.ink),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Dis-nous en un peu plus pour personnaliser ton aventure financière.',
             textAlign: TextAlign.center,
-            style: TextStyle(
+            style: AppTypography.body.copyWith(
               color: SoftUiColors.muted,
               fontSize: 13.5,
-              height: 1.4,
             ),
           ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 20),
           const _FieldLabel(
             icon: Icons.badge_outlined,
             label: 'Prénom ou Pseudo',
@@ -69,42 +65,43 @@ class AcquaintanceFormCard extends StatelessWidget {
             controller: nameController,
             textCapitalization: TextCapitalization.words,
             textInputAction: TextInputAction.next,
+            style: AppTypography.body.copyWith(color: SoftUiColors.ink),
             decoration: _inputDecoration(hint: 'Comment doit-on t’appeler ?'),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 16),
           const _FieldLabel(icon: Icons.cake_outlined, label: 'Ton Âge'),
           const SizedBox(height: 8),
           TextField(
             controller: ageController,
             keyboardType: TextInputType.number,
+            style: AppTypography.body.copyWith(color: SoftUiColors.ink),
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
               LengthLimitingTextInputFormatter(2),
             ],
             decoration: _inputDecoration(
               hint: 'Ex: 22',
-              suffix: const Text(
+              suffix: Text(
                 'ans',
-                style: TextStyle(
-                  color: SoftUiColors.muted,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: AppTypography.label.copyWith(color: SoftUiColors.muted),
               ),
             ),
           ),
-          const SizedBox(height: 10),
-          const Row(
+          const SizedBox(height: 12),
+          Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.info_outline, size: 16, color: Color(0xFF5B8DEF)),
-              SizedBox(width: 6),
+              const Icon(
+                Icons.info_outline,
+                size: 16,
+                color: Color(0xFF5B8DEF),
+              ),
+              const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   'Cela nous aide à te proposer des quêtes adaptées à ta situation.',
-                  style: TextStyle(
-                    color: Color(0xFF5B8DEF),
-                    fontSize: 12,
-                    height: 1.35,
+                  style: AppTypography.caption.copyWith(
+                    color: const Color(0xFF5B8DEF),
                   ),
                 ),
               ),
@@ -118,7 +115,7 @@ class AcquaintanceFormCard extends StatelessWidget {
   InputDecoration _inputDecoration({required String hint, Widget? suffix}) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: SoftUiColors.muted, fontSize: 14),
+      hintStyle: AppTypography.body.copyWith(color: SoftUiColors.muted),
       suffix: suffix,
       filled: true,
       fillColor: SoftUiColors.card,
@@ -149,11 +146,7 @@ class _FieldLabel extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           label,
-          style: const TextStyle(
-            color: SoftUiColors.ink,
-            fontWeight: FontWeight.w700,
-            fontSize: 13,
-          ),
+          style: AppTypography.label.copyWith(color: SoftUiColors.ink),
         ),
       ],
     );

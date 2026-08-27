@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../core/theme/app_colors.dart';
-import '../core/theme/app_typography.dart';
+import '../core/theme/soft_ui_colors.dart';
 
 class IntroBrandCopy extends StatelessWidget {
   const IntroBrandCopy({
@@ -19,20 +18,30 @@ class IntroBrandCopy extends StatelessWidget {
       children: [
         FadeTransition(
           opacity: titleOpacity,
-          child: Text(
+          child: const Text(
             'FinEdge',
-            style: AppTypography.display.copyWith(color: AppColors.onPrimary),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: SoftUiColors.orangeDeep,
+              fontWeight: FontWeight.w900,
+              fontSize: 42,
+              letterSpacing: -1,
+              height: 1,
+            ),
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         FadeTransition(
           opacity: subtitleOpacity,
-          child: Text(
+          child: const Text(
             'Salut ! Prêt à faire fructifier ton argent ?',
-            style: AppTypography.body.copyWith(
-              color: AppColors.onPrimary.withValues(alpha: 0.95),
-            ),
             textAlign: TextAlign.center,
+            style: TextStyle(
+              color: SoftUiColors.ink,
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              height: 1.35,
+            ),
           ),
         ),
       ],

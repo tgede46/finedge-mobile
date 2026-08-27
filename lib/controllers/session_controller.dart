@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../models/diagnostic.dart';
 import '../models/guest_session.dart';
 import '../models/learning_path.dart';
+import '../models/mfa_method.dart';
 import 'session_store.dart';
 
 class SessionController extends ChangeNotifier {
@@ -22,6 +23,7 @@ class SessionController extends ChangeNotifier {
   bool get hasSeenIntro => _session.hasSeenIntro;
   bool get isSignedIn => _session.isSignedIn;
   LearningPath get path => _session.path;
+  MfaMethod get mfaMethod => _session.mfaMethod;
 
   Future<void> restore() async {
     final loaded = await _store.load();
@@ -49,6 +51,12 @@ class SessionController extends ChangeNotifier {
       hasSeenIntro: true,
       authProvider: _session.authProvider ?? 'guest',
     );
+    await _store.save(_session);
+    notifyListeners();
+  }
+
+  Future<void> setMfaMethod(MfaMethod method) async {
+    _session = _session.copyWith(mfaMethod: method);
     await _store.save(_session);
     notifyListeners();
   }

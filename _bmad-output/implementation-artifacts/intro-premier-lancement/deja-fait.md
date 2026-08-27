@@ -1,9 +1,6 @@
 # Déjà fait
 
-- Route `/intro` au premier lancement (pas encore onboardé, intro jamais vue)
-- Dégradé Fintech plein écran
-- Mascotte qui apparaît (scale elastic + fade)
-- Titre `FinEdge` puis « Salut ! Prêt à faire fructifier ton argent ? »
-- Après 2,2 s → questionnaire de diagnostic
-- Les lancements suivants (compte déjà créé) sautent l'intro
-- Tests : intro d'abord, puis diagnostic
+- Animation intro **5 secondes**, plein écran
+- Charte crème / orange FinEdge (plus le fond bleu/vert)
+- Get Started aligné charte + layout sans barre verte / scroll bizarre
+- Mascotte + barre de progression pendant l’intro
