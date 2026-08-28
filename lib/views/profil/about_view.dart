@@ -24,7 +24,7 @@ class AboutView extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
         children: [
-          const Center(child: FinedgeMascot(size: 120, emojiSize: 64)),
+          const Center(child: FinedgeMascot(size: 120, showCircle: false)),
           const SizedBox(height: 20),
           Text(
             'FinEdge',

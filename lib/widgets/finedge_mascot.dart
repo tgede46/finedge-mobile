@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/theme/soft_ui_colors.dart';
 
-/// Mascotte FinEdge — renard emoji (charte crème / orange).
+/// Mascotte / logo FinEdge — renard (`assets/images/logo.png`).
 class FinedgeMascot extends StatelessWidget {
   const FinedgeMascot({
     super.key,
@@ -12,17 +12,22 @@ class FinedgeMascot extends StatelessWidget {
   });
 
   final double size;
+  /// Conservé pour compatibilité ; ignore si logo image.
   final double? emojiSize;
   final bool showCircle;
 
+  static const assetPath = 'assets/images/logo.png';
   static const emoji = '🦊';
 
   @override
   Widget build(BuildContext context) {
-    final child = Text(
-      emoji,
-      style: TextStyle(fontSize: emojiSize ?? size * 0.55),
-      textAlign: TextAlign.center,
+    final logoSize = emojiSize ?? (showCircle ? size * 0.92 : size);
+    final child = Image.asset(
+      assetPath,
+      width: logoSize,
+      height: logoSize,
+      fit: BoxFit.contain,
+      filterQuality: FilterQuality.high,
     );
 
     if (!showCircle) return child;
@@ -36,6 +41,7 @@ class FinedgeMascot extends StatelessWidget {
         shape: BoxShape.circle,
         border: Border.all(color: SoftUiColors.border, width: 2),
       ),
+      clipBehavior: Clip.antiAlias,
       child: child,
     );
   }

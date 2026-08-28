@@ -105,7 +105,13 @@ class MascotBubble extends StatelessWidget {
             border: Border.all(color: SoftUiColors.border),
           ),
           alignment: Alignment.center,
-          child: const Text(FinedgeMascot.emoji, style: TextStyle(fontSize: 32)),
+          clipBehavior: Clip.antiAlias,
+          child: Image.asset(
+            FinedgeMascot.assetPath,
+            width: 52,
+            height: 52,
+            fit: BoxFit.contain,
+          ),
         ),
         const SizedBox(width: 10),
         Expanded(

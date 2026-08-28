@@ -44,12 +44,15 @@ class IntroMascot extends StatelessWidget {
                 ],
               ),
               alignment: Alignment.center,
+              clipBehavior: Clip.antiAlias,
               child: child,
             );
           },
-          child: Text(
-            FinedgeMascot.emoji,
-            style: TextStyle(fontSize: size * 0.44),
+          child: Image.asset(
+            FinedgeMascot.assetPath,
+            width: size * 0.88,
+            height: size * 0.88,
+            fit: BoxFit.contain,
           ),
         ),
       ),

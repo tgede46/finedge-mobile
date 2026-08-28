@@ -17,7 +17,7 @@ class MascotHeader extends StatelessWidget {
         const CircleAvatar(
           radius: 28,
           backgroundColor: AppColors.primary,
-          child: Text(FinedgeMascot.emoji, style: TextStyle(fontSize: 28)),
+          backgroundImage: AssetImage(FinedgeMascot.assetPath),
         ),
         const SizedBox(width: 12),
         Expanded(

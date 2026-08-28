@@ -24,9 +24,12 @@ class MascotSpeechHeader extends StatelessWidget {
             border: Border.all(color: SoftUiColors.border),
           ),
           alignment: Alignment.center,
-          child: const Text(
-            FinedgeMascot.emoji,
-            style: TextStyle(fontSize: 34),
+          clipBehavior: Clip.antiAlias,
+          child: Image.asset(
+            FinedgeMascot.assetPath,
+            width: 56,
+            height: 56,
+            fit: BoxFit.contain,
           ),
         ),
         const SizedBox(width: 12),

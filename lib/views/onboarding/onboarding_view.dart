@@ -298,7 +298,12 @@ class _OnboardingViewState extends State<OnboardingView> {
         children: [
           OnboardingProgressHeader(step: 1, total: _totalSteps),
           const Spacer(),
-          Text(FinedgeMascot.emoji, style: const TextStyle(fontSize: 64)),
+          Image.asset(
+            FinedgeMascot.assetPath,
+            width: 96,
+            height: 96,
+            fit: BoxFit.contain,
+          ),
           const SizedBox(height: 20),
           Text(
             'Quelques questions pour mieux te comprendre',

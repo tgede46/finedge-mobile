@@ -4,7 +4,7 @@ import '../core/theme/app_typography.dart';
 import '../core/theme/soft_ui_colors.dart';
 import 'finedge_mascot.dart';
 
-/// Hero Get Started — icône coach + marque (sans texte marketing).
+/// Hero Get Started — logo coach + marque.
 class GetStartedHero extends StatelessWidget {
   const GetStartedHero({super.key});
 
@@ -46,9 +46,12 @@ class GetStartedHero extends StatelessWidget {
                     ],
                   ),
                   alignment: Alignment.center,
-                  child: Text(
-                    FinedgeMascot.emoji,
-                    style: TextStyle(fontSize: mascotSize * 0.44),
+                  clipBehavior: Clip.antiAlias,
+                  child: Image.asset(
+                    FinedgeMascot.assetPath,
+                    width: mascotSize * 0.88,
+                    height: mascotSize * 0.88,
+                    fit: BoxFit.contain,
                   ),
                 ),
                 const SizedBox(height: 22),
