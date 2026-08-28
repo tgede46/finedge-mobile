@@ -29,30 +29,12 @@ class GetStartedHero extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
+                Image.asset(
+                  FinedgeMascot.assetPath,
                   width: mascotSize,
                   height: mascotSize,
-                  decoration: BoxDecoration(
-                    color: SoftUiColors.card,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: SoftUiColors.border, width: 2),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x33E07818),
-                        blurRadius: 28,
-                        spreadRadius: 2,
-                        offset: Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  alignment: Alignment.center,
-                  clipBehavior: Clip.antiAlias,
-                  child: Image.asset(
-                    FinedgeMascot.assetPath,
-                    width: mascotSize * 0.88,
-                    height: mascotSize * 0.88,
-                    fit: BoxFit.contain,
-                  ),
+                  fit: BoxFit.contain,
+                  filterQuality: FilterQuality.high,
                 ),
                 const SizedBox(height: 22),
                 Text(

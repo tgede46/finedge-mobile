@@ -18,6 +18,7 @@ class CoachView extends StatefulWidget {
 
 class _CoachViewState extends State<CoachView> {
   final _scroll = ScrollController();
+  final _input = TextEditingController();
   final _messages = <CoachChatMessage>[];
 
   String? _scenarioId;
@@ -37,6 +38,7 @@ class _CoachViewState extends State<CoachView> {
   @override
   void dispose() {
     _scroll.dispose();
+    _input.dispose();
     super.dispose();
   }
 
@@ -79,14 +81,27 @@ class _CoachViewState extends State<CoachView> {
 
   Future<void> _startScenario(CoachScenario scenario) async {
     AppFeedback.light();
-    setState(() {
-      _scenarioId = scenario.id;
-      _stepId = scenario.startStepId;
-      _choices = [];
-      _waitingChoices = false;
-    });
-    await _appendUser('Simulation : ${scenario.title}');
-    await _showStep(scenario.startStep);
+    try {
+      setState(() {
+        _scenarioId = scenario.id;
+        _stepId = scenario.startStepId;
+        _choices = [];
+        _waitingChoices = false;
+      });
+      await _appendUser('Simulation : ${scenario.title}');
+      await _showStep(scenario.startStep);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _scenarioId = null;
+        _stepId = null;
+        _choices = [];
+        _waitingChoices = false;
+      });
+      await _appendCoachMessages(const [
+        'La simulation n’a pas pu démarrer. Réessaie avec une autre carte.',
+      ]);
+    }
   }
 
   Future<void> _showStep(CoachSimStep step) async {
@@ -151,10 +166,27 @@ class _CoachViewState extends State<CoachView> {
     await _showStep(next);
   }
 
+  Future<void> _onUserTyped() async {
+    final text = _input.text.trim();
+    if (text.isEmpty || _typing) return;
+    _input.clear();
+    await _appendUser(text);
+    await _appendCoachMessages(const [
+      'Merci pour ton message ! Le chat est en cours de développement.',
+    ]);
+  }
+
   Future<void> _onQuickQuestion(String question) async {
     if (_typing) return;
-    await _appendUser(question);
-    await _appendCoachMessages(CoachSimulationBank.quickReplyFor(question));
+    try {
+      await _appendUser(question);
+      await _appendCoachMessages(CoachSimulationBank.quickReplyFor(question));
+    } catch (_) {
+      if (!mounted) return;
+      await _appendCoachMessages(const [
+        'Je n’ai pas pu répondre. Relance une simulation avec une carte en haut.',
+      ]);
+    }
   }
 
   void _exitSimulation() {
@@ -270,19 +302,12 @@ class _CoachViewState extends State<CoachView> {
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
               child: TextField(
-                readOnly: true,
-                onTap: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Chat libre bientôt — utilise les simulations ou les pills.',
-                      ),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                },
+                controller: _input,
+                enabled: !_typing,
+                textInputAction: TextInputAction.send,
+                onSubmitted: (_) => _onUserTyped(),
                 decoration: InputDecoration(
-                  hintText: 'Simulations guidées · chat libre bientôt',
+                  hintText: 'Écris au coach…',
                   hintStyle: AppTypography.caption,
                   filled: true,
                   fillColor: AppColors.surface,
@@ -290,9 +315,12 @@ class _CoachViewState extends State<CoachView> {
                     borderRadius: BorderRadius.circular(18),
                     borderSide: BorderSide.none,
                   ),
-                  suffixIcon: Icon(
-                    Icons.play_circle_outline_rounded,
-                    color: AppColors.primary.withValues(alpha: 0.7),
+                  suffixIcon: IconButton(
+                    onPressed: _typing ? null : _onUserTyped,
+                    icon: Icon(
+                      Icons.send_rounded,
+                      color: AppColors.primary.withValues(alpha: 0.9),
+                    ),
                   ),
                 ),
               ),

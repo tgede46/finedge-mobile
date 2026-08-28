@@ -8,7 +8,7 @@ class FinedgeMascot extends StatelessWidget {
     super.key,
     this.size = 72,
     this.emojiSize,
-    this.showCircle = true,
+    this.showCircle = false,
   });
 
   final double size;
@@ -21,7 +21,7 @@ class FinedgeMascot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final logoSize = emojiSize ?? (showCircle ? size * 0.92 : size);
+    final logoSize = emojiSize ?? size;
     final child = Image.asset(
       assetPath,
       width: logoSize,
