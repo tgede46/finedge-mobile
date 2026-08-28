@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../controllers/session_scope.dart';
 import '../../core/theme/app_typography.dart';
@@ -16,7 +17,10 @@ import '../../widgets/onboarding_progress_header.dart';
 
 /// Parcours : mieux te comprendre → métier → niveau → rythme → …
 class OnboardingView extends StatefulWidget {
-  const OnboardingView({super.key});
+  const OnboardingView({super.key, this.retake = false});
+
+  /// Repasser le diagnostic (Profil) — étapes courtes.
+  final bool retake;
 
   @override
   State<OnboardingView> createState() => _OnboardingViewState();
@@ -156,14 +160,51 @@ class _OnboardingViewState extends State<OnboardingView> {
     );
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_prefilled || !widget.retake) return;
+    _prefilled = true;
+    final d = SessionScope.of(context).session.diagnostic;
+    if (d == null) return;
+    _occupation = d.occupation;
+    _level = d.level;
+    _energy = d.energy == 'intense' ? 'serious' : d.energy;
+    _goals.addAll(d.goals);
+    _avatar = d.avatar;
+    _ageRange = d.age;
+    _nameController.text = d.displayName ?? '';
+    _step = 1;
+  }
+
+  bool _prefilled = false;
+
   Future<void> _finish() async {
-    // Conserve email/social si déjà connecté ; sinon défaut guest.
+    if (widget.retake) {
+      final existing = SessionScope.of(context).session.diagnostic;
+      final built = _buildDiagnostic();
+      final merged = Diagnostic(
+        goals: built.goals,
+        level: built.level,
+        energy: built.energy,
+        avatar: existing?.avatar ?? built.avatar,
+        occupation: built.occupation,
+        displayName: existing?.displayName ?? built.displayName,
+        age: existing?.age ?? built.age,
+        startMode: existing?.startMode ?? built.startMode,
+      );
+      await SessionScope.of(context).retakeDiagnostic(merged);
+      if (!mounted) return;
+      context.go('/profil');
+      return;
+    }
     await SessionScope.of(context).completeOnboarding(_buildDiagnostic());
   }
 
   Future<void> _continue() async {
     if (!_canContinue) return;
-    if (_step >= _totalSteps - 1) {
+    final lastStep = widget.retake ? 5 : _totalSteps - 1;
+    if (_step >= lastStep) {
       await _finish();
       return;
     }
@@ -171,9 +212,17 @@ class _OnboardingViewState extends State<OnboardingView> {
   }
 
   void _back() {
-    if (_step <= 0) return;
+    if (widget.retake) {
+      if (_step <= 1) return;
+    } else if (_step <= 0) {
+      return;
+    }
     setState(() => _step -= 1);
   }
+
+  int get _progressStep => widget.retake ? _step : _step + 1;
+
+  int get _progressTotal => widget.retake ? 5 : _totalSteps;
 
   @override
   Widget build(BuildContext context) {
@@ -187,7 +236,20 @@ class _OnboardingViewState extends State<OnboardingView> {
             OnboardingSpacing.screenH,
             OnboardingSpacing.screenBottom,
           ),
-          child: _body(),
+          child: Column(
+            children: [
+              if (widget.retake)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    onPressed: () => context.go('/profil'),
+                    icon: const Icon(Icons.close_rounded),
+                    color: SoftUiColors.muted,
+                  ),
+                ),
+              Expanded(child: _body()),
+            ],
+          ),
         ),
       ),
     );
@@ -203,9 +265,9 @@ class _OnboardingViewState extends State<OnboardingView> {
     return Column(
       children: [
         OnboardingProgressHeader(
-          step: _step + 1,
-          total: _totalSteps,
-          onBack: _step > 0 ? _back : null,
+          step: _progressStep,
+          total: _progressTotal,
+          onBack: (widget.retake ? _step > 1 : _step > 0) ? _back : null,
         ),
         const SizedBox(height: OnboardingSpacing.afterProgress),
         // Bulle fixée : ne scrolle pas sous la barre de progression.

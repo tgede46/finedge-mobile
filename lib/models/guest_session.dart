@@ -15,6 +15,9 @@ class GuestSession {
     this.streakGoalDays,
     this.hasCompletedFirstLesson = false,
     this.deepenAnswers = const {},
+    this.lessonProgress = const {},
+    this.completedLessonIds = const {},
+    this.diagnosticHistory = const [],
   });
 
   final String localId;
@@ -28,6 +31,12 @@ class GuestSession {
   final int? streakGoalDays;
   final bool hasCompletedFirstLesson;
   final Map<String, String> deepenAnswers;
+  /// Index d’étape en cours par leçon (reprise après quit).
+  final Map<String, int> lessonProgress;
+  /// Leçons validées (quiz réussi).
+  final Set<String> completedLessonIds;
+  /// Scores des diagnostics passés (historique).
+  final List<int> diagnosticHistory;
 
   bool get isOnboarded => diagnostic != null;
   bool get isSignedIn => authProvider != null;
@@ -49,6 +58,11 @@ class GuestSession {
     'hasCompletedFirstLesson': hasCompletedFirstLesson,
     if (streakGoalDays != null) 'streakGoalDays': streakGoalDays,
     if (deepenAnswers.isNotEmpty) 'deepenAnswers': deepenAnswers,
+    if (lessonProgress.isNotEmpty)
+      'lessonProgress': lessonProgress.map((k, v) => MapEntry(k, v)),
+    if (completedLessonIds.isNotEmpty)
+      'completedLessonIds': completedLessonIds.toList(),
+    if (diagnosticHistory.isNotEmpty) 'diagnosticHistory': diagnosticHistory,
     if (authProvider != null) 'authProvider': authProvider,
     if (email != null) 'email': email,
     if (diagnostic != null) 'diagnostic': diagnostic!.toJson(),
@@ -73,6 +87,33 @@ class GuestSession {
         }
         return <String, String>{};
       }(),
+      lessonProgress: () {
+        final raw = json['lessonProgress'];
+        if (raw is Map) {
+          return raw.map(
+            (k, v) => MapEntry(k.toString(), (v as num).toInt()),
+          );
+        }
+        return <String, int>{};
+      }(),
+      completedLessonIds: () {
+        final raw = json['completedLessonIds'];
+        if (raw is List) {
+          return raw.map((e) => e.toString()).toSet();
+        }
+        // Migration : 1ʳᵉ leçon déjà faite.
+        if (json['hasCompletedFirstLesson'] == true) {
+          return {'besoins_envies'};
+        }
+        return <String>{};
+      }(),
+      diagnosticHistory: () {
+        final raw = json['diagnosticHistory'];
+        if (raw is List) {
+          return raw.map((e) => (e as num).toInt()).toList();
+        }
+        return <int>[];
+      }(),
       diagnostic: raw is Map
           ? Diagnostic.fromJson(Map<String, dynamic>.from(raw))
           : null,
@@ -90,6 +131,9 @@ class GuestSession {
     int? streakGoalDays,
     bool? hasCompletedFirstLesson,
     Map<String, String>? deepenAnswers,
+    Map<String, int>? lessonProgress,
+    Set<String>? completedLessonIds,
+    List<int>? diagnosticHistory,
   }) {
     return GuestSession(
       localId: localId,
@@ -104,6 +148,9 @@ class GuestSession {
       hasCompletedFirstLesson:
           hasCompletedFirstLesson ?? this.hasCompletedFirstLesson,
       deepenAnswers: deepenAnswers ?? this.deepenAnswers,
+      lessonProgress: lessonProgress ?? this.lessonProgress,
+      completedLessonIds: completedLessonIds ?? this.completedLessonIds,
+      diagnosticHistory: diagnosticHistory ?? this.diagnosticHistory,
     );
   }
 }

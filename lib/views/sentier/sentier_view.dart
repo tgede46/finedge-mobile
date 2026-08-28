@@ -6,7 +6,7 @@ import '../../core/theme/app_typography.dart';
 import '../../core/theme/soft_ui_colors.dart';
 import '../../models/course_curriculum.dart';
 
-/// Onglet Leçons — sentier par unités (maquette FinEdge).
+/// Onglet Leçons — sentier aéré par unités (style Duolingo).
 class SentierView extends StatelessWidget {
   const SentierView({super.key});
 
@@ -14,7 +14,7 @@ class SentierView extends StatelessWidget {
   Widget build(BuildContext context) {
     final session = SessionScope.of(context).session;
     final units = CourseCurriculum.units(
-      firstLessonDone: session.hasCompletedFirstLesson,
+      completed: session.completedLessonIds,
     );
 
     return ColoredBox(
@@ -24,9 +24,22 @@ class SentierView extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
           children: [
+            Text(
+              'Ton sentier',
+              style: AppTypography.display.copyWith(
+                color: SoftUiColors.ink,
+                fontSize: 26,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Avance leçon par leçon — chaque étape compte.',
+              style: AppTypography.body.copyWith(color: SoftUiColors.muted),
+            ),
+            const SizedBox(height: 20),
             for (final unit in units) ...[
               _UnitHeader(unit: unit),
-              const SizedBox(height: 8),
+              const SizedBox(height: 16),
               _UnitPath(
                 nodes: unit.nodes,
                 onLessonTap: (node) {
@@ -35,7 +48,7 @@ class SentierView extends StatelessWidget {
                   context.push('/lecon/${node.id}');
                 },
               ),
-              const SizedBox(height: 28),
+              const SizedBox(height: 36),
             ],
           ],
         ),
@@ -70,7 +83,7 @@ class _UnitHeader extends StatelessWidget {
                     fontSize: 16,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 4),
                 Text(
                   unit.title,
                   style: AppTypography.body.copyWith(
@@ -99,29 +112,42 @@ class _UnitHeader extends StatelessWidget {
 class _UnitPath extends StatelessWidget {
   const _UnitPath({required this.nodes, required this.onLessonTap});
 
+  static const _nodeSpacing = 124.0;
+  static const _pathTopPad = 24.0;
+  static const _horizontalOffset = 88.0;
+
   final List<LessonNode> nodes;
   final ValueChanged<LessonNode> onLessonTap;
 
   @override
   Widget build(BuildContext context) {
+    final height = _pathTopPad * 2 + nodes.length * _nodeSpacing;
+
     return SizedBox(
-      height: 56.0 + nodes.length * 88.0,
+      height: height,
       child: Stack(
         alignment: Alignment.topCenter,
         children: [
           Positioned(
-            top: 28,
-            bottom: 28,
-            child: Container(width: 4, color: SoftUiColors.border),
+            top: _pathTopPad + 36,
+            bottom: _pathTopPad + 36,
+            child: Container(
+              width: 4,
+              decoration: BoxDecoration(
+                color: SoftUiColors.border,
+                borderRadius: BorderRadius.circular(99),
+              ),
+            ),
           ),
           for (var i = 0; i < nodes.length; i++)
             Positioned(
-              top: 20.0 + i * 88.0,
+              top: _pathTopPad + i * _nodeSpacing,
               left: 0,
               right: 0,
               child: _PathNodeRow(
                 node: nodes[i],
-                showLabel: nodes[i].status == LessonNodeStatus.active,
+                horizontalOffset: _horizontalOffset,
+                rowHeight: _nodeSpacing,
                 onTap: () => onLessonTap(nodes[i]),
               ),
             ),
@@ -134,17 +160,19 @@ class _UnitPath extends StatelessWidget {
 class _PathNodeRow extends StatelessWidget {
   const _PathNodeRow({
     required this.node,
-    required this.showLabel,
+    required this.horizontalOffset,
+    required this.rowHeight,
     required this.onTap,
   });
 
   final LessonNode node;
-  final bool showLabel;
+  final double horizontalOffset;
+  final double rowHeight;
   final VoidCallback onTap;
 
   double get _dx => switch (node.alignment) {
-    -1 => -72,
-    1 => 72,
+    -1 => -horizontalOffset,
+    1 => horizontalOffset,
     _ => 0,
   };
 
@@ -161,16 +189,16 @@ class _PathNodeRow extends StatelessWidget {
         ? Icons.check_rounded
         : node.icon;
     final iconColor = locked ? SoftUiColors.muted : Colors.white;
-    final size = active ? 72.0 : 58.0;
+    final size = active ? 68.0 : 56.0;
+    final showLabel = active && node.title.isNotEmpty;
 
     return SizedBox(
-      height: 88,
-      child: Stack(
-        alignment: Alignment.center,
+      height: rowHeight,
+      child: Column(
         children: [
-          if (showLabel && node.title.isNotEmpty)
-            Transform.translate(
-              offset: Offset(_dx == 0 ? 0 : _dx * 0.15, -46),
+          if (showLabel) ...[
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: horizontalOffset * 2 + 80),
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 14,
@@ -179,7 +207,7 @@ class _PathNodeRow extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: SoftUiColors.card,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: SoftUiColors.border),
+                  border: Border.all(color: SoftUiColors.orange, width: 1.8),
                   boxShadow: const [
                     BoxShadow(
                       color: Color(0x14000000),
@@ -190,41 +218,59 @@ class _PathNodeRow extends StatelessWidget {
                 ),
                 child: Text(
                   node.title,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                   style: AppTypography.label.copyWith(
                     color: SoftUiColors.ink,
                     fontWeight: FontWeight.w800,
                     fontSize: 13,
+                    height: 1.2,
                   ),
                 ),
               ),
             ),
-          Transform.translate(
-            offset: Offset(_dx, 0),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: locked ? null : onTap,
-                customBorder: const CircleBorder(),
-                child: Container(
-                  width: size,
-                  height: size,
-                  decoration: BoxDecoration(
-                    color: bg,
-                    shape: BoxShape.circle,
-                    border: active
-                        ? Border.all(color: SoftUiColors.orangeDeep, width: 3)
-                        : null,
-                    boxShadow: active
-                        ? const [
-                            BoxShadow(
-                              color: Color(0x40E07818),
-                              blurRadius: 16,
-                              spreadRadius: 1,
-                            ),
-                          ]
-                        : null,
+            const SizedBox(height: 14),
+          ] else
+            const SizedBox(height: 44),
+          Expanded(
+            child: Center(
+              child: Transform.translate(
+                offset: Offset(_dx, 0),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: locked ? null : onTap,
+                    customBorder: const CircleBorder(),
+                    child: Container(
+                      width: size,
+                      height: size,
+                      decoration: BoxDecoration(
+                        color: bg,
+                        shape: BoxShape.circle,
+                        border: active
+                            ? Border.all(
+                                color: SoftUiColors.orangeDeep,
+                                width: 3,
+                              )
+                            : null,
+                        boxShadow: active
+                            ? const [
+                                BoxShadow(
+                                  color: Color(0x40E07818),
+                                  blurRadius: 16,
+                                  spreadRadius: 1,
+                                ),
+                              ]
+                            : null,
+                      ),
+                      child: Icon(
+                        icon,
+                        color: iconColor,
+                        size: active ? 28 : 24,
+                      ),
+                    ),
                   ),
-                  child: Icon(icon, color: iconColor, size: active ? 30 : 26),
                 ),
               ),
             ),

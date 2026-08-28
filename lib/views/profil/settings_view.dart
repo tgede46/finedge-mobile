@@ -3,11 +3,11 @@ import 'package:go_router/go_router.dart';
 
 import '../../controllers/session_scope.dart';
 import '../../core/feedback/app_feedback.dart';
+import '../../core/preferences/app_preferences.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/theme/soft_ui_colors.dart';
-import '../../models/mfa_method.dart';
 
-/// Paramètres démo — toggles locaux + lien MFA (stub).
+/// Paramètres — préférences + connexion/déconnexion + lien À propos.
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key});
 
@@ -16,15 +16,39 @@ class SettingsView extends StatefulWidget {
 }
 
 class _SettingsViewState extends State<SettingsView> {
-  bool _notifications = true;
+  Future<void> _signOut() async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: SoftUiColors.cream,
+        title: Text('Se déconnecter ?', style: AppTypography.heading),
+        content: Text(
+          'Tu repasses en mode invité. Ta progression reste sur cet appareil.',
+          style: AppTypography.body.copyWith(color: SoftUiColors.muted),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Annuler'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(backgroundColor: SoftUiColors.ink),
+            child: const Text('Se déconnecter'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !mounted) return;
+    await SessionScope.of(context).signOut();
+    AppFeedback.light();
+    if (mounted) context.go('/accueil');
+  }
 
   @override
   Widget build(BuildContext context) {
     final session = SessionScope.of(context).session;
-    final email = session.email?.trim();
-    final accountLabel = (email != null && email.isNotEmpty)
-        ? email
-        : (session.isGuest ? 'Compte invité (local)' : 'Compte connecté');
+    final connected = session.isSignedIn && !session.isGuest;
 
     return Scaffold(
       backgroundColor: SoftUiColors.cream,
@@ -44,107 +68,83 @@ class _SettingsViewState extends State<SettingsView> {
           _card(
             children: [
               SwitchListTile(
-                value: _notifications,
-                onChanged: (v) {
-                  AppFeedback.selection();
-                  setState(() => _notifications = v);
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                value: AppPreferences.notificationsEnabled,
+                onChanged: (v) async {
+                  await AppPreferences.setNotifications(v);
+                  if (v) AppFeedback.selection();
+                  setState(() {});
                 },
                 title: Text('Notifications', style: AppTypography.label),
-                subtitle: Text(
-                  'Rappels de série (démo UI)',
-                  style: AppTypography.caption,
-                ),
                 activeThumbColor: SoftUiColors.orange,
               ),
+              const Divider(height: 1, color: SoftUiColors.border),
               SwitchListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 value: AppFeedback.soundsEnabled,
-                onChanged: (v) {
-                  setState(() => AppFeedback.soundsEnabled = v);
+                onChanged: (v) async {
+                  await AppPreferences.setSounds(v);
                   if (v) AppFeedback.selection();
+                  setState(() {});
                 },
                 title: Text('Sons', style: AppTypography.label),
-                subtitle: Text(
-                  'Clics système sur les interactions',
-                  style: AppTypography.caption,
-                ),
                 activeThumbColor: SoftUiColors.orange,
               ),
+              const Divider(height: 1, color: SoftUiColors.border),
               SwitchListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 value: AppFeedback.hapticsEnabled,
-                onChanged: (v) {
-                  setState(() => AppFeedback.hapticsEnabled = v);
+                onChanged: (v) async {
+                  await AppPreferences.setHaptics(v);
                   if (v) AppFeedback.selection();
+                  setState(() {});
                 },
                 title: Text('Vibrations', style: AppTypography.label),
-                subtitle: Text(
-                  'Retour haptique Duolingo-like',
-                  style: AppTypography.caption,
-                ),
                 activeThumbColor: SoftUiColors.orange,
               ),
             ],
           ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 24),
           _sectionTitle('Compte'),
           _card(
             children: [
               ListTile(
-                leading: const Icon(
-                  Icons.person_outline,
-                  color: SoftUiColors.orangeDeep,
-                ),
-                title: Text('Identifiant', style: AppTypography.label),
-                subtitle: Text(accountLabel, style: AppTypography.caption),
-              ),
-              if (session.isGuest)
-                ListTile(
-                  leading: const Icon(
-                    Icons.person_add_alt_1_outlined,
-                    color: SoftUiColors.orangeDeep,
-                  ),
-                  title: Text('Créer mon profil', style: AppTypography.label),
-                  subtitle: Text(
-                    'Lier un e-mail (stub démo)',
-                    style: AppTypography.caption,
-                  ),
-                  trailing: const Icon(Icons.chevron_right_rounded),
-                  onTap: () {
-                    AppFeedback.selection();
-                    context.push('/login');
-                  },
-                ),
-              ListTile(
-                leading: const Icon(
-                  Icons.verified_user_outlined,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                leading: Icon(
+                  connected
+                      ? Icons.logout_rounded
+                      : Icons.login_rounded,
                   color: SoftUiColors.orangeDeep,
                 ),
                 title: Text(
-                  'Changer l’authentification',
+                  connected ? 'Se déconnecter' : 'Se connecter',
                   style: AppTypography.label,
-                ),
-                subtitle: Text(
-                  'MFA · ${session.mfaMethod.label}',
-                  style: AppTypography.caption,
                 ),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: () {
                   AppFeedback.selection();
-                  context.push('/mfa');
+                  if (connected) {
+                    _signOut();
+                  } else {
+                    context.push('/login');
+                  }
                 },
               ),
             ],
           ),
-          const SizedBox(height: 22),
+          const SizedBox(height: 24),
           _sectionTitle('À propos'),
           _card(
             children: [
               ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 leading: const Text('🐊', style: TextStyle(fontSize: 22)),
                 title: Text('FinEdge', style: AppTypography.label),
-                subtitle: Text(
-                  'MVP démo · multiplateforme',
-                  style: AppTypography.caption,
-                ),
+                trailing: const Icon(Icons.chevron_right_rounded),
+                onTap: () {
+                  AppFeedback.selection();
+                  context.push('/a-propos');
+                },
               ),
             ],
           ),
@@ -170,6 +170,7 @@ class _SettingsViewState extends State<SettingsView> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: SoftUiColors.border),
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(children: children),
     );
   }

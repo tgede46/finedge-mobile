@@ -20,7 +20,7 @@ class LessonIntroView extends StatelessWidget {
         copy?.$1 ??
         CourseCurriculum.byId(
           lessonId,
-          firstLessonDone: session.hasCompletedFirstLesson,
+          completed: session.completedLessonIds,
         )?.title ??
         'Leçon';
     final description =

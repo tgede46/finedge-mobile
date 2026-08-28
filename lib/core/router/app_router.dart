@@ -9,10 +9,12 @@ import '../../views/coach/coach_view.dart';
 import '../../views/intro/intro_view.dart';
 import '../../views/lecon/first_lesson_flow_view.dart';
 import '../../views/lecon/lesson_complete_view.dart';
-import '../../views/lecon/lesson_intro_view.dart';
+import '../../views/lecon/lesson_flow_view.dart';
+import '../../views/lecon/lesson_quiz_view.dart';
 import '../../views/lecon/streak_goal_view.dart';
 import '../../views/lecon/streak_renewal_flow_view.dart';
 import '../../views/onboarding/onboarding_view.dart';
+import '../../views/profil/about_view.dart';
 import '../../views/profil/mfa_setup_view.dart';
 import '../../views/profil/profil_view.dart';
 import '../../views/profil/settings_view.dart';
@@ -39,7 +41,12 @@ GoRouter createAppRouter({required SessionController session}) {
       final authGate = welcome || login;
 
       if (session.isOnboarded) {
-        if (intro || onboarding) return '/accueil';
+        if (intro || onboarding) {
+          final retake =
+              onboarding && state.uri.queryParameters['retake'] == '1';
+          if (retake) return null;
+          return '/accueil';
+        }
         // Guest peut ouvrir /login pour créer / lier un compte (upgrade).
         if (login && session.isGuest) return null;
         if (authGate) return '/accueil';
@@ -73,7 +80,10 @@ GoRouter createAppRouter({required SessionController session}) {
       GoRoute(
         path: '/onboarding',
         name: 'onboarding',
-        builder: (context, state) => const OnboardingView(),
+        builder: (context, state) {
+          final retake = state.uri.queryParameters['retake'] == '1';
+          return OnboardingView(retake: retake);
+        },
       ),
       GoRoute(
         path: '/premiere-lecon',
@@ -84,9 +94,19 @@ GoRouter createAppRouter({required SessionController session}) {
         path: '/lecon/:id',
         name: 'lecon',
         parentNavigatorKey: rootNavigatorKey,
+        routes: [
+          GoRoute(
+            path: 'quiz',
+            name: 'lecon-quiz',
+            builder: (context, state) {
+              final id = state.pathParameters['id'] ?? 'besoins_envies';
+              return LessonQuizView(lessonId: id);
+            },
+          ),
+        ],
         builder: (context, state) {
           final id = state.pathParameters['id'] ?? 'besoins_envies';
-          return LessonIntroView(lessonId: id);
+          return LessonFlowView(lessonId: id);
         },
       ),
       GoRoute(
@@ -110,6 +130,12 @@ GoRouter createAppRouter({required SessionController session}) {
         name: 'parametres',
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const SettingsView(),
+      ),
+      GoRoute(
+        path: '/a-propos',
+        name: 'a-propos',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const AboutView(),
       ),
       GoRoute(
         path: '/mfa/verify',

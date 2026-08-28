@@ -19,6 +19,7 @@ class AccueilView extends StatelessWidget {
     final greeting = (name != null && name.isNotEmpty)
         ? 'Salut $name'
         : 'Salut';
+    final inProgressId = SessionScope.of(context).activeLessonId;
 
     return ColoredBox(
       color: SoftUiColors.cream,
@@ -65,14 +66,20 @@ class AccueilView extends StatelessWidget {
             ),
             const SizedBox(height: 18),
             HomeContinueCard(
-              title: session.hasCompletedFirstLesson
+              title: inProgressId != null
+                  ? 'Reprendre ta leçon'
+                  : session.hasCompletedFirstLesson
                   ? 'Continuer ta leçon'
                   : 'Commencer ta 1ʳᵉ leçon',
-              subtitle: session.hasCompletedFirstLesson
+              subtitle: inProgressId != null
+                  ? 'Tu reprends exactement où tu t’étais arrêté.'
+                  : session.hasCompletedFirstLesson
                   ? 'Reprends là où tu t’es arrêté.'
                   : '3 minutes · découvre le budget en FCFA.',
               onPressed: () {
-                if (session.hasCompletedFirstLesson) {
+                if (inProgressId != null) {
+                  context.push('/lecon/$inProgressId');
+                } else if (session.hasCompletedFirstLesson) {
                   context.go('/lecons');
                 } else {
                   context.push('/lecon/besoins_envies');

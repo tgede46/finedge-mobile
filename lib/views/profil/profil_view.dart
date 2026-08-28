@@ -144,7 +144,9 @@ class ProfilView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final session = SessionScope.of(context).session;
+    final sessionController = SessionScope.of(context);
+    final session = sessionController.session;
+    final canRetakeDiagnostic = sessionController.canRetakeDiagnostic;
     final diagnostic = session.diagnostic;
     final name = diagnostic?.displayName?.trim().isNotEmpty == true
         ? diagnostic!.displayName!.trim()
@@ -435,16 +437,23 @@ class ProfilView extends StatelessWidget {
                             child: FilledButton(
                               onPressed: () {
                                 AppFeedback.light();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Refaire le diagnostic — bientôt disponible.',
+                                if (!canRetakeDiagnostic) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Termine la leçon « Épargne d’urgence » '
+                                        '(Unité 1 · leçon 3) pour repasser le diagnostic.',
+                                      ),
                                     ),
-                                  ),
-                                );
+                                  );
+                                  return;
+                                }
+                                context.push('/onboarding?retake=1');
                               },
                               style: FilledButton.styleFrom(
-                                backgroundColor: SoftUiColors.ink,
+                                backgroundColor: canRetakeDiagnostic
+                                    ? SoftUiColors.ink
+                                    : SoftUiColors.muted,
                                 foregroundColor: Colors.white,
                                 elevation: 0,
                                 shape: RoundedRectangleBorder(
@@ -550,24 +559,26 @@ class _ProfileStatCard extends StatelessWidget {
           Text(
             value,
             textAlign: TextAlign.center,
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: SoftUiColors.ink,
               fontWeight: FontWeight.w900,
-              fontSize: 14,
+              fontSize: 13,
+              height: 1.15,
             ),
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 4),
           Text(
             label,
             textAlign: TextAlign.center,
-            maxLines: 1,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
               color: SoftUiColors.muted,
-              fontSize: 10,
+              fontSize: 9,
               fontWeight: FontWeight.w600,
+              height: 1.2,
             ),
           ),
         ],

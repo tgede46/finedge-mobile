@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../models/course_progress.dart';
 import '../models/diagnostic.dart';
 import '../models/guest_session.dart';
 import '../models/learning_path.dart';
@@ -46,6 +47,17 @@ class SessionController extends ChangeNotifier {
       hasSeenIntro: true,
       authProvider: provider,
       email: email,
+    );
+    await _store.save(_session);
+    notifyListeners();
+  }
+
+  /// Déconnexion — repasse en guest, conserve XP / leçons / diagnostic.
+  Future<void> signOut() async {
+    _session = _session.copyWith(
+      authProvider: 'guest',
+      email: null,
+      mfaMethod: MfaMethod.none,
     );
     await _store.save(_session);
     notifyListeners();
@@ -119,5 +131,79 @@ class SessionController extends ChangeNotifier {
     _session = _session.copyWith(streakDays: next);
     await _store.save(_session);
     notifyListeners();
+  }
+
+  int lessonStepIndex(String lessonId) =>
+      _session.lessonProgress[lessonId] ?? 0;
+
+  bool hasLessonInProgress(String lessonId) =>
+      (_session.lessonProgress[lessonId] ?? 0) > 0;
+
+  String? get activeLessonId {
+    if (_session.lessonProgress.isEmpty) return null;
+    for (final entry in _session.lessonProgress.entries) {
+      if (entry.value > 0) return entry.key;
+    }
+    return null;
+  }
+
+  Future<void> saveLessonStep(String lessonId, int stepIndex) async {
+    final next = Map<String, int>.from(_session.lessonProgress);
+    if (stepIndex <= 0) {
+      next.remove(lessonId);
+    } else {
+      next[lessonId] = stepIndex;
+    }
+    _session = _session.copyWith(lessonProgress: next);
+    await _store.save(_session);
+    notifyListeners();
+  }
+
+  Future<void> clearLessonProgress(String lessonId) async {
+    if (!_session.lessonProgress.containsKey(lessonId)) return;
+    final next = Map<String, int>.from(_session.lessonProgress)..remove(lessonId);
+    _session = _session.copyWith(lessonProgress: next);
+    await _store.save(_session);
+    notifyListeners();
+  }
+
+  Set<String> get completedLessonIds => _session.completedLessonIds;
+
+  bool get canRetakeDiagnostic =>
+      CourseProgress.canRetakeDiagnostic(_session.completedLessonIds);
+
+  Future<void> completeLesson(String lessonId, {required int xpEarned}) async {
+    final completed = {..._session.completedLessonIds, lessonId};
+    _session = _session.copyWith(
+      completedLessonIds: completed,
+      xp: _session.xp + xpEarned,
+      lessonProgress: Map<String, int>.from(_session.lessonProgress)
+        ..remove(lessonId),
+    );
+    await _store.save(_session);
+    notifyListeners();
+  }
+
+  Future<void> retakeDiagnostic(Diagnostic diagnostic) async {
+    final score = _diagnosticScore(diagnostic);
+    _session = _session.copyWith(
+      diagnostic: diagnostic,
+      diagnosticHistory: [..._session.diagnosticHistory, score],
+    );
+    await _store.save(_session);
+    notifyListeners();
+  }
+
+  static int _diagnosticScore(Diagnostic d) {
+    var score = 55;
+    score += (d.goals.length * 6).clamp(0, 24);
+    score += switch (d.level) {
+      'economist' => 18,
+      'solid' => 14,
+      'daily' => 10,
+      'basics' => 6,
+      _ => 2,
+    };
+    return score.clamp(40, 95);
   }
 }
