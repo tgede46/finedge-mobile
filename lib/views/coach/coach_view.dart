@@ -180,7 +180,12 @@ class _CoachViewState extends State<CoachView> {
     if (_typing) return;
     try {
       await _appendUser(question);
-      await _appendCoachMessages(CoachSimulationBank.quickReplyFor(question));
+      await _appendCoachMessages(
+        CoachSimulationBank.quickReplyFor(
+          question,
+          SessionScope.of(context).currency.code,
+        ),
+      );
     } catch (_) {
       if (!mounted) return;
       await _appendCoachMessages(const [
@@ -237,7 +242,11 @@ class _CoachViewState extends State<CoachView> {
                 ],
               ),
             ),
-            if (!_inSimulation) _ScenarioPicker(onStart: _startScenario),
+            if (!_inSimulation)
+              _ScenarioPicker(
+                onStart: _startScenario,
+                currencyCode: SessionScope.of(context).currency.code,
+              ),
             Expanded(
               child: ListView.builder(
                 controller: _scroll,
@@ -333,21 +342,23 @@ class _CoachViewState extends State<CoachView> {
 }
 
 class _ScenarioPicker extends StatelessWidget {
-  const _ScenarioPicker({required this.onStart});
+  const _ScenarioPicker({required this.onStart, required this.currencyCode});
 
   final ValueChanged<CoachScenario> onStart;
+  final String currencyCode;
 
   @override
   Widget build(BuildContext context) {
+    final scenarios = CoachSimulationBank.scenariosFor(currencyCode);
     return SizedBox(
       height: 124,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
-        itemCount: CoachSimulationBank.scenarios.length,
+        itemCount: scenarios.length,
         separatorBuilder: (_, _) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
-          final s = CoachSimulationBank.scenarios[index];
+          final s = scenarios[index];
           return _ScenarioCard(scenario: s, onTap: () => onStart(s));
         },
       ),

@@ -303,7 +303,7 @@ abstract final class CourseCurriculum {
     ),
     'regle_503020': (
       'Règle 50-30-20',
-      '50 % besoins · 30 % envies · 20 % épargne — en FCFA.',
+      '50 % besoins · 30 % envies · 20 % épargne.',
     ),
     'objectif_epargne': (
       'Objectif d’épargne',

@@ -38,6 +38,7 @@ class Diagnostic {
     this.displayName,
     this.age,
     this.startMode,
+    this.currency,
   });
 
   final List<String> goals;
@@ -52,6 +53,9 @@ class Diagnostic {
   /// Intervalle d’âge : under_18 | 18_25 | 26_35 | 36_45 | 46_60 | 60_plus
   final String? age;
   final String? startMode;
+
+  /// Identifiant AppCurrency (ngn, eur, xof…).
+  final String? currency;
 
   DailyPace get pace => switch (energy) {
     'calm' => DailyPace.calm,
@@ -116,6 +120,7 @@ class Diagnostic {
     if (displayName != null) 'displayName': displayName,
     if (age != null) 'age': age,
     if (startMode != null) 'startMode': startMode,
+    if (currency != null) 'currency': currency,
   };
 
   static Diagnostic fromJson(Map<String, dynamic> json) {
@@ -162,6 +167,7 @@ class Diagnostic {
       displayName: json['displayName'] as String?,
       age: _parseAge(json['age'] ?? json['ageRange']),
       startMode: json['startMode'] as String?,
+      currency: json['currency'] as String?,
     );
   }
 

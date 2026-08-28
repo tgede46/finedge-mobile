@@ -5,6 +5,7 @@ import '../../controllers/session_scope.dart';
 import '../../core/feedback/app_feedback.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/theme/soft_ui_colors.dart';
+import '../../models/app_currency.dart';
 import '../../models/avatar_catalog.dart';
 import '../../models/diagnostic.dart';
 import '../../models/guest_session.dart';
@@ -123,6 +124,10 @@ class ProfilView extends StatelessWidget {
                 ),
                 Text(
                   'Rythme · ${d.pace.label}',
+                  style: AppTypography.body.copyWith(color: SoftUiColors.muted),
+                ),
+                Text(
+                  'Monnaie · ${AppCurrency.byId(d.currency).label}',
                   style: AppTypography.body.copyWith(color: SoftUiColors.muted),
                 ),
                 if (d.goals.isNotEmpty) ...[

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../controllers/session_scope.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/theme/soft_ui_colors.dart';
+import '../../models/app_currency.dart';
 import '../../models/course_curriculum.dart';
 
 /// Intro d’une leçon (ex. Besoins vs Envies).
@@ -23,9 +24,11 @@ class LessonIntroView extends StatelessWidget {
           completed: session.completedLessonIds,
         )?.title ??
         'Leçon';
-    final description =
-        copy?.$2 ??
-        'Prépare-toi : quelques minutes pour progresser sur ton sentier.';
+    final description = AppCurrency.adapt(
+      copy?.$2 ??
+          'Prépare-toi : quelques minutes pour progresser sur ton sentier.',
+      currencyId: session.diagnostic?.currency,
+    );
     final xp = session.xp > 0 ? session.xp : 1250;
 
     return Scaffold(

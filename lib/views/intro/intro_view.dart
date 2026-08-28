@@ -120,7 +120,7 @@ class _IntroViewState extends State<IntroView>
                       child: const Column(
                         children: [
                           Text(
-                            'Éducation financière · FCFA',
+                            'Éducation financière',
                             style: TextStyle(
                               color: SoftUiColors.muted,
                               fontWeight: FontWeight.w600,

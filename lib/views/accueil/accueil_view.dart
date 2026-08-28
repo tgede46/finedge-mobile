@@ -75,7 +75,7 @@ class AccueilView extends StatelessWidget {
                   ? 'Ta leçon est en cours.'
                   : session.hasCompletedFirstLesson
                   ? 'Poursuis ton sentier financier.'
-                  : '3 minutes · découvre le budget en FCFA.',
+                  : '3 minutes · découvre le budget.',
               onPressed: () {
                 if (inProgressId != null) {
                   context.push('/lecon/$inProgressId');

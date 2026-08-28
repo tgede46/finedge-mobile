@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../models/app_currency.dart';
 import '../models/course_progress.dart';
 import '../models/diagnostic.dart';
 import '../models/guest_session.dart';
@@ -25,7 +26,8 @@ class SessionController extends ChangeNotifier {
   bool get isSignedIn => _session.isSignedIn;
   bool get isGuest => _session.isGuest;
   LearningPath get path => _session.path;
-  MfaMethod get mfaMethod => _session.mfaMethod;
+  AppCurrency get currency =>
+      AppCurrency.byId(_session.diagnostic?.currency);
 
   Future<void> restore() async {
     final loaded = await _store.load();

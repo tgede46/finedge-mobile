@@ -5,6 +5,7 @@ import '../../controllers/session_scope.dart';
 import '../../core/feedback/app_feedback.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/theme/soft_ui_colors.dart';
+import '../../models/app_currency.dart';
 import '../../models/lesson_quiz_bank.dart';
 import '../../models/lesson_quiz_question.dart';
 import '../../widgets/continue_cta_button.dart';
@@ -128,6 +129,10 @@ class _LessonQuizViewState extends State<LessonQuizView> {
     final progress = (_queueIndex + 1) / _queue.length;
     final wrongPendingChoice =
         _validated && _lastCorrect == false && !_showExplanation;
+    final money = (String t) => AppCurrency.adapt(
+      t,
+      currencyId: SessionScope.of(context).session.diagnostic?.currency,
+    );
 
     return PopScope(
       canPop: false,
@@ -175,7 +180,7 @@ class _LessonQuizViewState extends State<LessonQuizView> {
                 child: ListView(
                   children: [
                     Text(
-                      _question.prompt,
+                      money(_question.prompt),
                       style: AppTypography.display.copyWith(
                         color: SoftUiColors.ink,
                         fontSize: 24,
@@ -185,7 +190,7 @@ class _LessonQuizViewState extends State<LessonQuizView> {
                     const SizedBox(height: 20),
                     for (var i = 0; i < _question.options.length; i++)
                       DuoChoiceTile(
-                        title: _question.options[i],
+                        title: money(_question.options[i]),
                         selected: _selected == i,
                         onTap: _validated
                             ? () {}
@@ -235,7 +240,7 @@ class _LessonQuizViewState extends State<LessonQuizView> {
                   ),
                 ),
               ] else if (_validated && _lastCorrect == false && _showExplanation) ...[
-                _ExplanationCard(text: _question.explanation),
+                _ExplanationCard(text: money(_question.explanation)),
                 const SizedBox(height: 12),
                 ContinueCtaButton(
                   enabled: true,

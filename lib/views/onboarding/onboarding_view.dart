@@ -5,6 +5,7 @@ import '../../controllers/session_scope.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/theme/onboarding_spacing.dart';
 import '../../core/theme/soft_ui_colors.dart';
+import '../../models/app_currency.dart';
 import '../../models/avatar_catalog.dart';
 import '../../models/diagnostic.dart';
 import '../../widgets/avatar_option_card.dart';
@@ -28,13 +29,13 @@ class OnboardingView extends StatefulWidget {
 }
 
 class _OnboardingViewState extends State<OnboardingView> {
-  /// 0 intro · 1 métier · 2 niveau · 3 rythme · 4 résumé
-  /// · 5 objectifs · 6 nom · 7 âge · 8 avatar
-  /// (prompt compte → après la 1ʳᵉ leçon si guest)
-  static const _totalSteps = 9;
+  /// 0 intro · 1 métier · 2 monnaie · 3 niveau · 4 rythme · 5 résumé
+  /// · 6 objectifs · 7 nom · 8 âge · 9 avatar
+  static const _totalSteps = 10;
 
   int _step = 0;
   String? _occupation;
+  String? _currency;
   String? _level;
   String? _energy;
   String? _avatar;
@@ -103,13 +104,14 @@ class _OnboardingViewState extends State<OnboardingView> {
   bool get _canContinue => switch (_step) {
     0 => true,
     1 => _occupation != null,
-    2 => _level != null,
-    3 => _energy != null,
-    4 => true,
-    5 => _goals.isNotEmpty,
-    6 => _nameController.text.trim().length >= 2,
-    7 => _ageRange != null,
-    8 => _avatar != null,
+    2 => _currency != null,
+    3 => _level != null,
+    4 => _energy != null,
+    5 => true,
+    6 => _goals.isNotEmpty,
+    7 => _nameController.text.trim().length >= 2,
+    8 => _ageRange != null,
+    9 => _avatar != null,
     _ => true,
   };
 
@@ -144,6 +146,8 @@ class _OnboardingViewState extends State<OnboardingView> {
     });
   }
 
+  String get _currencyLabel => AppCurrency.byId(_currency).label;
+
   Diagnostic _buildDiagnostic() {
     final energy = switch (_energy) {
       'serious' => 'intense',
@@ -158,6 +162,7 @@ class _OnboardingViewState extends State<OnboardingView> {
       displayName: _nameController.text.trim(),
       age: _ageRange,
       startMode: 'placed',
+      currency: _currency,
     );
   }
 
@@ -169,6 +174,7 @@ class _OnboardingViewState extends State<OnboardingView> {
     final d = SessionScope.of(context).session.diagnostic;
     if (d == null) return;
     _occupation = d.occupation;
+    _currency = d.currency;
     _level = d.level;
     _energy = d.energy == 'intense' ? 'serious' : d.energy;
     _goals.addAll(d.goals);
@@ -193,6 +199,7 @@ class _OnboardingViewState extends State<OnboardingView> {
         displayName: existing?.displayName ?? built.displayName,
         age: existing?.age ?? built.age,
         startMode: existing?.startMode ?? built.startMode,
+        currency: built.currency ?? existing?.currency,
       );
       await SessionScope.of(context).retakeDiagnostic(merged);
       if (!mounted) return;
@@ -204,7 +211,7 @@ class _OnboardingViewState extends State<OnboardingView> {
 
   Future<void> _continue() async {
     if (!_canContinue) return;
-    final lastStep = widget.retake ? 5 : _totalSteps - 1;
+    final lastStep = widget.retake ? 6 : _totalSteps - 1;
     if (_step >= lastStep) {
       await _finish();
       return;
@@ -223,7 +230,7 @@ class _OnboardingViewState extends State<OnboardingView> {
 
   int get _progressStep => widget.retake ? _step : _step + 1;
 
-  int get _progressTotal => widget.retake ? 5 : _totalSteps;
+  int get _progressTotal => widget.retake ? 6 : _totalSteps;
 
   @override
   Widget build(BuildContext context) {
@@ -339,6 +346,17 @@ class _OnboardingViewState extends State<OnboardingView> {
         ],
       ),
       2 => _choiceShell(
+        speech: 'Quelle monnaie tu utilises au quotidien ?',
+        children: [
+          for (final c in AppCurrency.all)
+            DuoChoiceTile(
+              title: c.label,
+              selected: _currency == c.id,
+              onTap: () => setState(() => _currency = c.id),
+            ),
+        ],
+      ),
+      3 => _choiceShell(
         speech: 'Tu t’y connais comment en argent ?',
         children: [
           for (final o in _levels)
@@ -355,7 +373,7 @@ class _OnboardingViewState extends State<OnboardingView> {
             ),
         ],
       ),
-      3 => _choiceShell(
+      4 => _choiceShell(
         speech: 'Combien de temps par jour ?',
         children: [
           for (final o in _energyOptions)
@@ -366,18 +384,19 @@ class _OnboardingViewState extends State<OnboardingView> {
             ),
         ],
       ),
-      4 => _choiceShell(
+      5 => _choiceShell(
         speech: 'Voici ce qu’on a retenu.',
         ctaLabel: 'Continuer',
         children: [
           _PersonSummaryCard(
             occupation: _occupationLabel,
+            currency: _currencyLabel,
             level: _levelLabel,
             energy: _energyLabel,
           ),
         ],
       ),
-      5 => _choiceShell(
+      6 => _choiceShell(
         speech: 'Quel est ton objectif ?',
         children: [
           for (final o in _goalOptions)
@@ -395,8 +414,8 @@ class _OnboardingViewState extends State<OnboardingView> {
             ),
         ],
       ),
-      6 => DuoQuestionScaffold(
-        step: 7,
+      7 => DuoQuestionScaffold(
+        step: 8,
         total: _totalSteps,
         title: 'Comment t’appelles-tu ?',
         onBack: _back,
@@ -410,7 +429,7 @@ class _OnboardingViewState extends State<OnboardingView> {
           showValid: _nameController.text.trim().length >= 2,
         ),
       ),
-      7 => _choiceShell(
+      8 => _choiceShell(
         speech: 'Quelle est ta tranche d’âge ?',
         children: [
           for (final o in _ageRanges)
@@ -421,7 +440,7 @@ class _OnboardingViewState extends State<OnboardingView> {
             ),
         ],
       ),
-      8 => Column(
+      9 => Column(
         children: [
           OnboardingProgressHeader(
             step: _step + 1,
@@ -478,11 +497,13 @@ class _OnboardingViewState extends State<OnboardingView> {
 class _PersonSummaryCard extends StatelessWidget {
   const _PersonSummaryCard({
     required this.occupation,
+    required this.currency,
     required this.level,
     required this.energy,
   });
 
   final String occupation;
+  final String currency;
   final String level;
   final String energy;
 
@@ -505,6 +526,7 @@ class _PersonSummaryCard extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           _row(Icons.work_outline, 'Métier', occupation),
+          _row(Icons.payments_outlined, 'Monnaie', currency),
           _row(Icons.signal_cellular_alt, 'Niveau', level),
           _row(Icons.schedule_outlined, 'Rythme', energy, last: true),
         ],

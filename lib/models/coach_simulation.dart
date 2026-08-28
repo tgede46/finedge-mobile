@@ -93,10 +93,16 @@ abstract final class CoachSimulationBank {
       buf.write(s[i]);
     }
     final sign = amount < 0 ? '−' : '';
-    return '$sign${buf.toString()} FCFA';
+    return '$sign${buf.toString()} $_code';
   }
 
-  static final scenarios = [
+  static String _code = 'XOF';
+
+  static List<CoachScenario> get scenarios => scenariosFor(_code);
+
+  static List<CoachScenario> scenariosFor(String code) {
+    _code = code;
+    return [
     CoachScenario(
       id: 'journee_boutique',
       title: 'Ma journée en boutique',
@@ -178,7 +184,7 @@ abstract final class CoachSimulationBank {
     CoachScenario(
       id: 'budget_wave',
       title: 'Mon budget Wave',
-      subtitle: 'Répartir 150 000 FCFA',
+      subtitle: 'Répartir 150 000 $_code',
       icon: Icons.account_balance_wallet_outlined,
       intro:
           'Tu viens de recevoir ${formatFcfa(150000)} sur Wave. On teste ta répartition du mois.',
@@ -326,6 +332,7 @@ abstract final class CoachSimulationBank {
       },
     ),
   ];
+  }
 
   static CoachScenario? scenarioById(String id) {
     for (final s in scenarios) {
@@ -335,7 +342,8 @@ abstract final class CoachSimulationBank {
   }
 
   /// Réponses rapides aux pills.
-  static List<String> quickReplyFor(String question) {
+  static List<String> quickReplyFor(String question, [String? code]) {
+    if (code != null) _code = code;
     return switch (question) {
       'Comment calculer ma marge ?' => [
         'Marge = Ventes − Coût des marchandises − Frais (transport, Wave…).',

@@ -5,6 +5,7 @@ import '../../controllers/session_scope.dart';
 import '../../core/feedback/app_feedback.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/theme/soft_ui_colors.dart';
+import '../../models/app_currency.dart';
 import '../../models/course_curriculum.dart';
 import '../../models/lesson_bank.dart';
 import '../../models/lesson_step.dart';
@@ -261,12 +262,17 @@ class _LessonFlowViewState extends State<LessonFlowView> {
   }
 
   Widget _buildStep() {
+    final money = (String t) => AppCurrency.adapt(
+      t,
+      currencyId: SessionScope.of(context).session.diagnostic?.currency,
+    );
     return switch (_step.kind) {
-      LessonStepKind.read => _ReadStep(step: _step),
+      LessonStepKind.read => _ReadStep(step: _step, adapt: money),
       LessonStepKind.mcq => _McqStep(
         step: _step,
         selected: _selectedMcq,
         validated: _mcqValidated,
+        adapt: money,
         onSelect: (i) {
           if (_mcqValidated) return;
           setState(() => _selectedMcq = i);
@@ -276,7 +282,7 @@ class _LessonFlowViewState extends State<LessonFlowView> {
         child: FillBlankQuestion(
           key: ValueKey(_step.id),
           stepId: _step.id,
-          prompt: _step.prompt!,
+          prompt: money(_step.prompt!),
           segments: _step.segments,
           wordBank: _step.wordBank,
           correctWords: _step.resolvedCorrectWords,
@@ -288,21 +294,22 @@ class _LessonFlowViewState extends State<LessonFlowView> {
 }
 
 class _ReadStep extends StatelessWidget {
-  const _ReadStep({required this.step});
+  const _ReadStep({required this.step, required this.adapt});
 
   final LessonStep step;
+  final String Function(String) adapt;
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       children: [
         if (step.mascotLine != null) ...[
-          MascotSpeechHeader(message: step.mascotLine!),
+          MascotSpeechHeader(message: adapt(step.mascotLine!)),
           const SizedBox(height: 20),
         ],
         if (step.title != null)
           Text(
-            step.title!,
+            adapt(step.title!),
             style: AppTypography.display.copyWith(
               color: SoftUiColors.orangeDeep,
               fontSize: 26,
@@ -311,7 +318,7 @@ class _ReadStep extends StatelessWidget {
         if (step.body != null) ...[
           const SizedBox(height: 14),
           Text(
-            step.body!.replaceAll('**', ''),
+            adapt(step.body!.replaceAll('**', '')),
             style: AppTypography.body.copyWith(
               color: SoftUiColors.ink,
               height: 1.5,
@@ -330,19 +337,21 @@ class _McqStep extends StatelessWidget {
     required this.selected,
     required this.validated,
     required this.onSelect,
+    required this.adapt,
   });
 
   final LessonStep step;
   final int? selected;
   final bool validated;
   final ValueChanged<int> onSelect;
+  final String Function(String) adapt;
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       children: [
         Text(
-          step.prompt!,
+          adapt(step.prompt!),
           style: AppTypography.display.copyWith(
             color: SoftUiColors.ink,
             fontSize: 24,
@@ -352,7 +361,7 @@ class _McqStep extends StatelessWidget {
         const SizedBox(height: 20),
         for (var i = 0; i < step.options.length; i++)
           DuoChoiceTile(
-            title: step.options[i],
+            title: adapt(step.options[i]),
             selected: selected == i,
             onTap: () => onSelect(i),
           ),

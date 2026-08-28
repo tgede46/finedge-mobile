@@ -37,7 +37,7 @@ abstract final class AppTypography {
     height: 1.15,
   );
 
-  /// Montants FCFA
+  /// Montants (monnaie de l’utilisateur)
   static final TextStyle amount = _style(
     weight: FontWeight.w900,
     size: 28,
