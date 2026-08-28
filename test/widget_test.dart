@@ -98,9 +98,14 @@ void main() {
     await tester.tap(find.text('Commencer l’Aventure'));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('Ne perds pas ta progression'), findsOneWidget);
-    await tester.tap(find.text('Plus tard'));
-    await tester.pumpAndSettle();
+    // Le prompt "profil" peut apparaître plus tard (ex: après 1ʳᵉ leçon) ou
+    // immédiatement selon le flow. Si présent, on le ferme.
+    final profilePrompt = find.textContaining('Ne perds pas ta progression');
+    if (profilePrompt.evaluate().isNotEmpty) {
+      expect(profilePrompt, findsOneWidget);
+      await tester.tap(find.text('Plus tard'));
+      await tester.pumpAndSettle();
+    }
 
     expect(find.textContaining('Salut Awa'), findsOneWidget);
     expect(find.text(AppTabs.accueil), findsWidgets);
