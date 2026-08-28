@@ -191,7 +191,7 @@ class _LessonCompleteViewState extends State<LessonCompleteView>
                     onPressed: () {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Partage — bientôt disponible'),
+                          content: Text('Partage bientôt disponible'),
                         ),
                       );
                     },

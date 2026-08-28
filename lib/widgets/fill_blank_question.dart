@@ -179,7 +179,7 @@ class _FillBlankQuestionState extends State<FillBlankQuestion> {
         if (_lastValid == false) ...[
           const SizedBox(height: 12),
           Text(
-            'Pas tout à fait — touche un mot dans la phrase pour le retirer et réessayer.',
+            'Pas tout à fait. Touche un mot dans la phrase pour le retirer et réessayer.',
             style: AppTypography.caption.copyWith(
               color: SoftUiColors.orangeDeep,
             ),

@@ -28,11 +28,42 @@ class SessionController extends ChangeNotifier {
   LearningPath get path => _session.path;
   AppCurrency get currency =>
       AppCurrency.byId(_session.diagnostic?.currency);
+  MfaMethod get mfaMethod => _session.mfaMethod;
+  int get quizLives => _session.quizLivesRemaining;
+
+  static String _todayKey([DateTime? date]) {
+    final d = date ?? DateTime.now();
+    final m = d.month.toString().padLeft(2, '0');
+    final day = d.day.toString().padLeft(2, '0');
+    return '${d.year}-$m-$day';
+  }
+
+  Future<void> ensureQuizLivesReset() async {
+    final today = _todayKey();
+    if (_session.quizLivesDay == today) return;
+    _session = _session.copyWith(
+      quizLivesDay: today,
+      quizLivesRemaining: CourseProgress.dailyQuizLives,
+    );
+    await _store.save(_session);
+    notifyListeners();
+  }
+
+  Future<void> loseQuizLife() async {
+    await ensureQuizLivesReset();
+    if (_session.quizLivesRemaining <= 0) return;
+    _session = _session.copyWith(
+      quizLivesRemaining: _session.quizLivesRemaining - 1,
+    );
+    await _store.save(_session);
+    notifyListeners();
+  }
 
   Future<void> restore() async {
     final loaded = await _store.load();
     if (loaded != null) {
       _session = loaded;
+      await ensureQuizLivesReset();
       notifyListeners();
     }
   }

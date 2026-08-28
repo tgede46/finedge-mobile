@@ -21,7 +21,7 @@ class CreateProfilePrompt extends StatelessWidget {
     return Column(
       children: [
         const Spacer(flex: 2),
-        const FinedgeMascot(size: 112, emojiSize: 56),
+        const FinedgeMascot(size: 112),
         const SizedBox(height: 20),
         Container(
           margin: const EdgeInsets.symmetric(horizontal: 12),

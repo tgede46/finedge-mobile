@@ -24,7 +24,7 @@ class AboutView extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
         children: [
-          const Center(child: FinedgeMascot(size: 120, showCircle: false)),
+          const Center(child: FinedgeMascot(size: 120)),
           const SizedBox(height: 20),
           Text(
             'FinEdge',
@@ -44,8 +44,8 @@ class AboutView extends StatelessWidget {
           _block(
             title: 'Notre mission',
             body:
-                'FinEdge aide chacun à comprendre et maîtriser son argent — '
-                'budget, épargne, commerce, investissement — avec des leçons '
+                'FinEdge aide chacun à comprendre et maîtriser son argent : '
+                'budget, épargne, commerce, investissement. Des leçons '
                 'courtes, concrètes et adaptées à la vie réelle en Afrique.',
           ),
           const SizedBox(height: 16),
@@ -60,7 +60,7 @@ class AboutView extends StatelessWidget {
           _block(
             title: 'Pour qui',
             body:
-                'Étudiants, commerçants, entrepreneurs, salariés — '
+                'Étudiants, commerçants, entrepreneurs, salariés : '
                 'débutant ou déjà à l’aise, FinEdge t’accompagne pour '
                 'prendre de meilleures décisions avec ton argent.',
           ),

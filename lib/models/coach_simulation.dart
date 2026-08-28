@@ -122,7 +122,7 @@ abstract final class CoachSimulationBank {
               id: 'register',
               label: 'J’enregistre la vente en caisse pro',
               replies: [
-                'Parfait — ta caisse pro passe à ${formatFcfa(33500)}.',
+                'Parfait. Ta caisse pro passe à ${formatFcfa(33500)}.',
                 'Séparer perso et pro, c’est la base pour connaître ta marge.',
               ],
               nextStepId: 'stock',
@@ -143,7 +143,7 @@ abstract final class CoachSimulationBank {
           coachText:
               '11 h : tu rachètes du stock pour ${formatFcfa(12000)} '
               '(sortie caisse pro).\n'
-              '14 h : vente Wave ${formatFcfa(15000)} — frais ${formatFcfa(300)}.\n'
+              '14 h : vente Wave ${formatFcfa(15000)}, frais ${formatFcfa(300)}.\n'
               'Comment tu gères la vente Wave ?',
           choices: [
             CoachSimChoice(
@@ -210,7 +210,7 @@ abstract final class CoachSimulationBank {
               id: 'all_needs',
               label: '100 % dans les dépenses du mois',
               replies: [
-                'Tu vis au jour le jour — aucun matelas si imprévu.',
+                'Tu vis au jour le jour. Aucun matelas si imprévu.',
               ],
               nextStepId: 'impulse',
             ),
@@ -234,7 +234,7 @@ abstract final class CoachSimulationBank {
               id: 'wait',
               label: 'J’attends le mois prochain',
               replies: [
-                'Tu gardes ta marge de manœuvre — bon réflexe.',
+                'Tu gardes ta marge de manœuvre. Bon réflexe.',
               ],
               nextStepId: 'result',
             ),
@@ -257,7 +257,7 @@ abstract final class CoachSimulationBank {
           ],
         ),
         'result': CoachSimStep(
-          coachText: 'Fin du mois simulé — où en es-tu ?',
+          coachText: 'Fin du mois simulé. Où en es-tu ?',
           outcome: CoachSimOutcome(
             title: 'Budget Wave',
             rows: [
@@ -267,7 +267,7 @@ abstract final class CoachSimulationBank {
               ('Risque impulsion', 'Variable'),
             ],
             tip:
-                'Fixe ton virement épargne le jour de réception Wave — avant les envies.',
+                'Fixe ton virement épargne le jour de réception Wave, avant les envies.',
             positive: true,
           ),
         ),
@@ -290,7 +290,7 @@ abstract final class CoachSimulationBank {
           choices: [
             CoachSimChoice(
               id: 'refuse',
-              label: 'Je refuse poliment — d’abord l’ancienne dette',
+              label: 'Je refuse poliment, d’abord l’ancienne dette',
               replies: [
                 'Tu protèges ta trésorerie. Propose un paiement partiel immédiat.',
               ],
@@ -353,7 +353,7 @@ abstract final class CoachSimulationBank {
       ],
       'Aide pour mon budget Wave' => [
         'Dès que ${formatFcfa(150000)} arrive, decoupe : 50 % besoins, 30 % envies, 20 % épargne.',
-        'Envoie l’épargne sur un second compte ou vers Orange Money épargne — avant de dépenser.',
+        'Envoie l’épargne sur un second compte ou vers Orange Money épargne, avant de dépenser.',
         'Simu « Mon budget Wave » : tu testes une vraie décision d’impulsion.',
       ],
       'Gérer un crédit client' => [

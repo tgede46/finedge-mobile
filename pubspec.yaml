@@ -24,29 +24,34 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: assets/images/logo1.png
+  image_path: assets/images/logo.png
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: assets/images/logo.png
   remove_alpha_ios: true
   web:
     generate: true
-    image_path: assets/images/logo1.png
-    background_color: "#F59A2E"
-    theme_color: "#F59A2E"
+    image_path: assets/images/logo.png
+    background_color: "#FFFFFF"
+    theme_color: "#FFFFFF"
   windows:
     generate: true
-    image_path: assets/images/logo1.png
+    image_path: assets/images/logo.png
     icon_size: 256
   macos:
     generate: true
-    image_path: assets/images/logo1.png
+    image_path: assets/images/logo.png
 
 flutter_native_splash:
   color: "#FDF8F3"
   image: assets/images/logo.png
   android: true
   ios: true
+  android_gravity: center
+  ios_content_mode: scaleAspectFit
   android_12:
     color: "#FDF8F3"
     image: assets/images/logo.png
+    icon_background_color: "#FFFFFF"
 
 flutter:
   uses-material-design: true
@@ -54,7 +59,7 @@ flutter:
     - assets/icons/
     - assets/animations/
     - assets/avatars/
-    - assets/images/
+    - assets/images/logo.png
   # Police Matt (Fontfabric) — déposer Regular/Medium/Bold/Black ici :
   # fonts:
   #   - family: Matt

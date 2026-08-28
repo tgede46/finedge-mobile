@@ -14,12 +14,7 @@ class MascotHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Image.asset(
-          FinedgeMascot.assetPath,
-          width: 56,
-          height: 56,
-          fit: BoxFit.contain,
-        ),
+        const FinedgeMascot(size: 56),
         const SizedBox(width: 12),
         Expanded(
           child: Column(

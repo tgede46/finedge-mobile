@@ -10,11 +10,9 @@ import '../../models/course_curriculum.dart';
 import '../../models/lesson_bank.dart';
 import '../../models/lesson_step.dart';
 import '../../widgets/continue_cta_button.dart';
-import '../../widgets/duo_choice_tile.dart';
-import '../../widgets/fill_blank_question.dart';
 import '../../widgets/mascot_speech_header.dart';
 
-/// Parcours leçon multi-étapes — reprise auto si tu quittes (style Sapio).
+/// Parcours leçon multi-étapes — lecture seule, quiz séparé à la fin.
 class LessonFlowView extends StatefulWidget {
   const LessonFlowView({super.key, required this.lessonId});
 
@@ -29,9 +27,6 @@ class _LessonFlowViewState extends State<LessonFlowView> {
   late int _stepIndex;
   int? _pendingResumeStep;
   bool _resumeConfirmed = true;
-  int? _selectedMcq;
-  bool _questionValid = false;
-  bool _mcqValidated = false;
 
   @override
   void initState() {
@@ -59,7 +54,6 @@ class _LessonFlowViewState extends State<LessonFlowView> {
       _stepIndex = 0;
       _resumeConfirmed = true;
     }
-    _resetQuestionState();
   }
 
   bool get _showResumeGate =>
@@ -72,7 +66,6 @@ class _LessonFlowViewState extends State<LessonFlowView> {
     setState(() {
       _stepIndex = _pendingResumeStep!;
       _resumeConfirmed = true;
-      _resetQuestionState();
     });
   }
 
@@ -84,7 +77,6 @@ class _LessonFlowViewState extends State<LessonFlowView> {
       _pendingResumeStep = null;
       _stepIndex = 0;
       _resumeConfirmed = true;
-      _resetQuestionState();
     });
   }
 
@@ -97,12 +89,6 @@ class _LessonFlowViewState extends State<LessonFlowView> {
   bool _initialized = false;
 
   LessonStep get _step => _steps[_stepIndex];
-
-  void _resetQuestionState() {
-    _selectedMcq = null;
-    _mcqValidated = false;
-    _questionValid = _step.kind == LessonStepKind.read;
-  }
 
   Future<void> _persistStep() async {
     await SessionScope.of(context).saveLessonStep(widget.lessonId, _stepIndex);
@@ -120,30 +106,11 @@ class _LessonFlowViewState extends State<LessonFlowView> {
   }
 
   Future<void> _advance() async {
-    if (_step.kind == LessonStepKind.mcq && !_mcqValidated) {
-      if (_selectedMcq == null) return;
-      setState(() {
-        _mcqValidated = true;
-        _questionValid = _selectedMcq == _step.correctIndex;
-      });
-      if (_questionValid) {
-        AppFeedback.success();
-      } else {
-        AppFeedback.light();
-      }
-      return;
-    }
-
-    if (!_canContinue) return;
-
     if (_stepIndex >= _steps.length - 1) {
       await _finishLesson();
       return;
     }
-    setState(() {
-      _stepIndex += 1;
-      _resetQuestionState();
-    });
+    setState(() => _stepIndex += 1);
     await SessionScope.of(context).saveLessonStep(widget.lessonId, _stepIndex);
   }
 
@@ -153,27 +120,8 @@ class _LessonFlowViewState extends State<LessonFlowView> {
     context.push('/lecon/${widget.lessonId}/quiz');
   }
 
-  bool get _canContinue {
-    if (_step.kind == LessonStepKind.read) return true;
-    if (_step.kind == LessonStepKind.mcq) {
-      if (!_mcqValidated) return _selectedMcq != null;
-      return true;
-    }
-    return _questionValid;
-  }
-
-  String get _ctaLabel {
-    if (_stepIndex >= _steps.length - 1) {
-      return _step.kind == LessonStepKind.mcq && !_mcqValidated
-          ? 'Valider'
-          : 'Passer au quiz';
-    }
-    if (_step.kind == LessonStepKind.mcq && !_mcqValidated) return 'Valider';
-    if (_step.kind == LessonStepKind.mcq && _mcqValidated && !_questionValid) {
-      return 'Continuer';
-    }
-    return 'Continuer';
-  }
+  String get _ctaLabel =>
+      _stepIndex >= _steps.length - 1 ? 'Passer au quiz' : 'Continuer';
 
   @override
   Widget build(BuildContext context) {
@@ -245,10 +193,10 @@ class _LessonFlowViewState extends State<LessonFlowView> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                Expanded(child: _buildStep()),
+                Expanded(child: _ReadStep(step: _step, adapt: _adaptMoney)),
                 const SizedBox(height: 12),
                 ContinueCtaButton(
-                  enabled: _canContinue,
+                  enabled: true,
                   onPressed: _advance,
                   label: _ctaLabel,
                   showArrow: false,
@@ -261,36 +209,10 @@ class _LessonFlowViewState extends State<LessonFlowView> {
     );
   }
 
-  Widget _buildStep() {
-    final money = (String t) => AppCurrency.adapt(
-      t,
-      currencyId: SessionScope.of(context).session.diagnostic?.currency,
-    );
-    return switch (_step.kind) {
-      LessonStepKind.read => _ReadStep(step: _step, adapt: money),
-      LessonStepKind.mcq => _McqStep(
-        step: _step,
-        selected: _selectedMcq,
-        validated: _mcqValidated,
-        adapt: money,
-        onSelect: (i) {
-          if (_mcqValidated) return;
-          setState(() => _selectedMcq = i);
-        },
-      ),
-      LessonStepKind.fillBlank => SingleChildScrollView(
-        child: FillBlankQuestion(
-          key: ValueKey(_step.id),
-          stepId: _step.id,
-          prompt: money(_step.prompt!),
-          segments: _step.segments,
-          wordBank: _step.wordBank,
-          correctWords: _step.resolvedCorrectWords,
-          onValidated: (ok) => setState(() => _questionValid = ok),
-        ),
-      ),
-    };
-  }
+  String _adaptMoney(String text) => AppCurrency.adapt(
+    text,
+    currencyId: SessionScope.of(context).session.diagnostic?.currency,
+  );
 }
 
 class _ReadStep extends StatelessWidget {
@@ -324,52 +246,6 @@ class _ReadStep extends StatelessWidget {
               height: 1.5,
               fontSize: 16,
             ),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-class _McqStep extends StatelessWidget {
-  const _McqStep({
-    required this.step,
-    required this.selected,
-    required this.validated,
-    required this.onSelect,
-    required this.adapt,
-  });
-
-  final LessonStep step;
-  final int? selected;
-  final bool validated;
-  final ValueChanged<int> onSelect;
-  final String Function(String) adapt;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        Text(
-          adapt(step.prompt!),
-          style: AppTypography.display.copyWith(
-            color: SoftUiColors.ink,
-            fontSize: 24,
-            height: 1.25,
-          ),
-        ),
-        const SizedBox(height: 20),
-        for (var i = 0; i < step.options.length; i++)
-          DuoChoiceTile(
-            title: adapt(step.options[i]),
-            selected: selected == i,
-            onTap: () => onSelect(i),
-          ),
-        if (validated && selected != step.correctIndex) ...[
-          const SizedBox(height: 12),
-          Text(
-            'Ce n’est pas ça — lis l’indice, puis continue. Tu reverras ça au quiz.',
-            style: AppTypography.caption.copyWith(color: SoftUiColors.orangeDeep),
           ),
         ],
       ],

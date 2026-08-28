@@ -8,6 +8,7 @@ abstract final class CourseProgress {
 
   static const quizDurationMinutes = 5;
   static const quizQuestionCount = 10;
+  static const dailyQuizLives = 5;
 
   static const unit1LessonOrder = [
     'besoins_envies',

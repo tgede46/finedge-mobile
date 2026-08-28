@@ -176,7 +176,7 @@ abstract final class LessonQuizBank {
       prompt: '3 catégories utiles : fixe, variable et…',
       options: ['Imprévue', 'Secrète', 'Interdite'],
       correctIndex: 0,
-      explanation: 'Les imprévus existent — il faut les anticiper.',
+      explanation: 'Les imprévus existent. Il faut les anticiper.',
     ),
     LessonQuizQuestion(
       id: 'td10',
@@ -269,10 +269,10 @@ abstract final class LessonQuizBank {
       10,
       (i) => LessonQuizQuestion(
         id: '${lessonId}_q$i',
-        prompt: 'Question ${i + 1} — valide ta compréhension de la leçon.',
+        prompt: 'Question ${i + 1}. Valide ta compréhension de la leçon.',
         options: ['Réponse A (correcte)', 'Réponse B', 'Réponse C'],
         correctIndex: 0,
-        explanation: 'Revois la leçon si besoin — la bonne réponse est A.',
+        explanation: 'Revois la leçon si besoin. La bonne réponse est A.',
       ),
     );
   }

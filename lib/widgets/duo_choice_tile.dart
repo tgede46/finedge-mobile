@@ -5,6 +5,9 @@ import '../core/theme/app_typography.dart';
 import '../core/theme/onboarding_spacing.dart';
 import '../core/theme/soft_ui_colors.dart';
 
+/// État visuel après validation d’une réponse.
+enum ChoiceResult { correct, wrong }
+
 /// Carte de choix style Duolingo (simple ou multi).
 class DuoChoiceTile extends StatelessWidget {
   const DuoChoiceTile({
@@ -17,6 +20,7 @@ class DuoChoiceTile extends StatelessWidget {
     this.showCheck = false,
     this.badge,
     this.dense = false,
+    this.result,
   });
 
   final String title;
@@ -27,11 +31,31 @@ class DuoChoiceTile extends StatelessWidget {
   final String? badge;
   final VoidCallback onTap;
   final bool dense;
+  final ChoiceResult? result;
 
   @override
   Widget build(BuildContext context) {
-    final border = selected ? SoftUiColors.orange : SoftUiColors.border;
-    final bg = selected ? const Color(0xFFFFF1E0) : SoftUiColors.card;
+    final (Color border, Color bg, Color textColor, Widget? trailing) =
+        switch (result) {
+          ChoiceResult.correct => (
+            const Color(0xFF00C076),
+            const Color(0xFFE8F8F0),
+            const Color(0xFF007A4D),
+            const Icon(Icons.check_circle_rounded, color: Color(0xFF00C076)),
+          ),
+          ChoiceResult.wrong => (
+            const Color(0xFFE05252),
+            const Color(0xFFFDECEC),
+            const Color(0xFFB42318),
+            const Icon(Icons.cancel_rounded, color: Color(0xFFE05252)),
+          ),
+          null => (
+            selected ? SoftUiColors.orange : SoftUiColors.border,
+            selected ? const Color(0xFFFFF1E0) : SoftUiColors.card,
+            selected ? SoftUiColors.orangeDeep : SoftUiColors.ink,
+            null,
+          ),
+        };
 
     return Padding(
       padding: EdgeInsets.only(
@@ -53,7 +77,10 @@ class DuoChoiceTile extends StatelessWidget {
             ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: border, width: selected ? 2.2 : 1.5),
+              border: Border.all(
+                color: border,
+                width: result != null || selected ? 2.2 : 1.5,
+              ),
             ),
             child: Row(
               children: [
@@ -78,9 +105,7 @@ class DuoChoiceTile extends StatelessWidget {
                       Text(
                         title,
                         style: AppTypography.optionTitle.copyWith(
-                          color: selected
-                              ? SoftUiColors.orangeDeep
-                              : SoftUiColors.ink,
+                          color: textColor,
                         ),
                       ),
                       if (subtitle != null) ...[
@@ -95,7 +120,10 @@ class DuoChoiceTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (showCheck) ...[
+                if (trailing != null) ...[
+                  const SizedBox(width: 10),
+                  trailing,
+                ] else if (showCheck) ...[
                   const SizedBox(width: 10),
                   Container(
                     width: 24,

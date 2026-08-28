@@ -119,21 +119,21 @@ class _OnboardingViewState extends State<OnboardingView> {
     for (final o in _occupations) {
       if (o.$1 == _occupation) return o.$2;
     }
-    return '—';
+    return 'Non renseigné';
   }
 
   String get _levelLabel {
     for (final o in _levels) {
       if (o.$1 == _level) return o.$2;
     }
-    return '—';
+    return 'Non renseigné';
   }
 
   String get _energyLabel {
     for (final o in _energyOptions) {
       if (o.$1 == _energy) return o.$2;
     }
-    return '—';
+    return 'Non renseigné';
   }
 
   void _toggleGoal(String id) {
@@ -305,12 +305,7 @@ class _OnboardingViewState extends State<OnboardingView> {
         children: [
           OnboardingProgressHeader(step: 1, total: _totalSteps),
           const Spacer(),
-          Image.asset(
-            FinedgeMascot.assetPath,
-            width: 96,
-            height: 96,
-            fit: BoxFit.contain,
-          ),
+          const FinedgeMascot(size: 96),
           const SizedBox(height: 20),
           Text(
             'Quelques questions pour mieux te comprendre',

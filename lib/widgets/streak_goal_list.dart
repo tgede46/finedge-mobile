@@ -96,12 +96,7 @@ class MascotBubble extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Image.asset(
-          FinedgeMascot.assetPath,
-          width: 56,
-          height: 56,
-          fit: BoxFit.contain,
-        ),
+        const FinedgeMascot(size: 56),
         const SizedBox(width: 10),
         Expanded(
           child: Container(

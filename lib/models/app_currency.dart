@@ -1,4 +1,4 @@
-`/// Monnaie choisie par l’utilisateur — l’app s’adapte (montants, textes).
+/// Monnaie choisie par l’utilisateur — l’app s’adapte (montants, textes).
 class AppCurrency {
   const AppCurrency({
     required this.id,

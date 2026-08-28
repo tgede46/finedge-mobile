@@ -395,7 +395,7 @@ class ProfilView extends StatelessWidget {
                                 Text(
                                   score >= 70
                                       ? 'Votre santé financière est bonne, mais il reste des opportunités d’optimisation.'
-                                      : 'Bon début — continue les leçons pour renforcer ta santé financière.',
+                                      : 'Bon début. Continue les leçons pour renforcer ta santé financière.',
                                   style: AppTypography.caption.copyWith(
                                     color: SoftUiColors.muted,
                                     height: 1.35,

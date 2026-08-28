@@ -157,7 +157,7 @@ class AccueilView extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Sépare ton argent perso et ton argent business — même une petite caisse compte.',
+                    'Sépare ton argent perso et ton argent business. Même une petite caisse compte.',
                     style: AppTypography.body.copyWith(
                       color: SoftUiColors.ink,
                       fontWeight: FontWeight.w600,

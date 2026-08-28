@@ -33,7 +33,7 @@ class SentierView extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Avance leçon par leçon — chaque étape compte.',
+              'Avance leçon par leçon. Chaque étape compte.',
               style: AppTypography.body.copyWith(color: SoftUiColors.muted),
             ),
             const SizedBox(height: 20),

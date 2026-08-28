@@ -323,7 +323,7 @@ abstract final class CourseCurriculum {
     ),
     'credit_client': (
       'Crédit client',
-      'Décide quand faire crédit — et comment te protéger.',
+      'Décide quand faire crédit et comment te protéger.',
     ),
     'stock_minimum': (
       'Stock minimum',

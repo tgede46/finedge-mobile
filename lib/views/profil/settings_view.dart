@@ -139,12 +139,7 @@ class _SettingsViewState extends State<SettingsView> {
             children: [
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                leading: Image.asset(
-                  FinedgeMascot.assetPath,
-                  width: 28,
-                  height: 28,
-                  fit: BoxFit.contain,
-                ),
+                leading: const FinedgeMascot(size: 28),
                 title: Text('FinEdge', style: AppTypography.label),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: () {

@@ -4,7 +4,7 @@ import '../core/theme/app_typography.dart';
 import '../core/theme/soft_ui_colors.dart';
 import 'finedge_mascot.dart';
 
-/// Hero Get Started — logo coach + marque.
+/// Hero Get Started — logo + marque.
 class GetStartedHero extends StatelessWidget {
   const GetStartedHero({super.key});
 
@@ -29,12 +29,7 @@ class GetStartedHero extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset(
-                  FinedgeMascot.assetPath,
-                  width: mascotSize,
-                  height: mascotSize,
-                  fit: BoxFit.contain,
-                ),
+                FinedgeMascot(size: mascotSize),
                 const SizedBox(height: 22),
                 Text(
                   'FinEdge',

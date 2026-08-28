@@ -6,10 +6,12 @@ import '../../core/feedback/app_feedback.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/theme/soft_ui_colors.dart';
 import '../../models/app_currency.dart';
+import '../../models/course_progress.dart';
 import '../../models/lesson_quiz_bank.dart';
 import '../../models/lesson_quiz_question.dart';
 import '../../widgets/continue_cta_button.dart';
 import '../../widgets/duo_choice_tile.dart';
+import '../../widgets/quiz_lives_indicator.dart';
 import '../../widgets/finedge_mascot.dart';
 
 /// Quiz de fin — 10 questions · explication sur demande après validation.
@@ -33,6 +35,8 @@ class _LessonQuizViewState extends State<LessonQuizView> {
   bool _showExplanation = false;
   final Map<int, bool> _results = {};
   bool _showSummary = false;
+  bool _outOfLives = false;
+  bool _livesReady = false;
 
   @override
   void initState() {
@@ -41,11 +45,28 @@ class _LessonQuizViewState extends State<LessonQuizView> {
     _queue = List.generate(_allQuestions.length, (i) => i);
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_livesReady) return;
+    _livesReady = true;
+    _initLives();
+  }
+
+  Future<void> _initLives() async {
+    final controller = SessionScope.of(context);
+    await controller.ensureQuizLivesReset();
+    if (!mounted) return;
+    if (controller.quizLives <= 0) {
+      setState(() => _outOfLives = true);
+    }
+  }
+
   LessonQuizQuestion get _question => _allQuestions[_queue[_queueIndex]];
 
   int get _globalIndex => _queue[_queueIndex];
 
-  void _validate() {
+  Future<void> _validate() async {
     if (_selected == null || _validated) return;
     final correct = _selected == _question.correctIndex;
     setState(() {
@@ -56,8 +77,15 @@ class _LessonQuizViewState extends State<LessonQuizView> {
     });
     if (correct) {
       AppFeedback.success();
-    } else {
-      AppFeedback.light();
+      return;
+    }
+
+    AppFeedback.light();
+    final controller = SessionScope.of(context);
+    await controller.loseQuizLife();
+    if (!mounted) return;
+    if (controller.quizLives <= 0) {
+      setState(() => _outOfLives = true);
     }
   }
 
@@ -122,9 +150,20 @@ class _LessonQuizViewState extends State<LessonQuizView> {
     }
   }
 
+  ChoiceResult? _resultFor(int index) {
+    if (!_validated) return null;
+    if (index == _question.correctIndex) return ChoiceResult.correct;
+    if (index == _selected) return ChoiceResult.wrong;
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_outOfLives) return _buildOutOfLives();
     if (_showSummary) return _buildSummary();
+
+    final session = SessionScope.of(context);
+    final lives = session.quizLives;
 
     final progress = (_queueIndex + 1) / _queue.length;
     final wrongPendingChoice =
@@ -165,15 +204,30 @@ class _LessonQuizViewState extends State<LessonQuizView> {
                       ),
                     ),
                   ),
+                  const SizedBox(width: 10),
+                  QuizLivesIndicator(lives: lives),
                 ],
               ),
               const SizedBox(height: 8),
-              Text(
-                'Quiz · question ${_queueIndex + 1}/${_queue.length}',
-                style: AppTypography.caption.copyWith(
-                  color: SoftUiColors.muted,
-                  fontWeight: FontWeight.w700,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'Quiz · question ${_queueIndex + 1}/${_queue.length}',
+                      style: AppTypography.caption.copyWith(
+                        color: SoftUiColors.muted,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '$lives/${CourseProgress.dailyQuizLives} vies',
+                    style: AppTypography.caption.copyWith(
+                      color: SoftUiColors.muted,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 16),
               Expanded(
@@ -192,6 +246,7 @@ class _LessonQuizViewState extends State<LessonQuizView> {
                       DuoChoiceTile(
                         title: money(_question.options[i]),
                         selected: _selected == i,
+                        result: _resultFor(i),
                         onTap: _validated
                             ? () {}
                             : () => setState(() => _selected = i),
@@ -200,12 +255,17 @@ class _LessonQuizViewState extends State<LessonQuizView> {
                 ),
               ),
               if (wrongPendingChoice) ...[
+                _FeedbackBanner(
+                  correct: false,
+                  message: 'Raté. La bonne réponse est « ${money(_question.options[_question.correctIndex])} ».',
+                ),
+                const SizedBox(height: 12),
                 Text(
-                  'Pas tout à fait. Tu veux voir l’explication ?',
+                  'Tu veux voir l’explication ?',
                   textAlign: TextAlign.center,
                   style: AppTypography.label.copyWith(
-                    color: SoftUiColors.ink,
-                    fontWeight: FontWeight.w800,
+                    color: SoftUiColors.muted,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 10),
@@ -240,6 +300,11 @@ class _LessonQuizViewState extends State<LessonQuizView> {
                   ),
                 ),
               ] else if (_validated && _lastCorrect == false && _showExplanation) ...[
+                _FeedbackBanner(
+                  correct: false,
+                  message: 'Raté. La bonne réponse est « ${money(_question.options[_question.correctIndex])} ».',
+                ),
+                const SizedBox(height: 12),
                 _ExplanationCard(text: money(_question.explanation)),
                 const SizedBox(height: 12),
                 ContinueCtaButton(
@@ -251,31 +316,7 @@ class _LessonQuizViewState extends State<LessonQuizView> {
                   showArrow: false,
                 ),
               ] else if (_validated && _lastCorrect == true) ...[
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE8F8F0),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFF00C076)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.check_circle_rounded,
-                        color: Color(0xFF00C076),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          'Bonne réponse !',
-                          style: AppTypography.label.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                _FeedbackBanner(correct: true, message: 'Bonne réponse !'),
                 const SizedBox(height: 12),
                 ContinueCtaButton(
                   enabled: true,
@@ -300,6 +341,59 @@ class _LessonQuizViewState extends State<LessonQuizView> {
     );
   }
 
+  Widget _buildOutOfLives() {
+    return Scaffold(
+      backgroundColor: SoftUiColors.cream,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+          child: Column(
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  onPressed: _exitQuiz,
+                  icon: const Icon(Icons.close_rounded),
+                  color: SoftUiColors.muted,
+                ),
+              ),
+              const Spacer(),
+              const FinedgeMascot(size: 88),
+              const SizedBox(height: 20),
+              Text(
+                'Plus de vies aujourd’hui',
+                textAlign: TextAlign.center,
+                style: AppTypography.display.copyWith(
+                  color: SoftUiColors.orangeDeep,
+                  fontSize: 26,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Tu as utilisé tes ${CourseProgress.dailyQuizLives} vies du jour.\n'
+                'Reviens demain pour continuer le quiz.',
+                textAlign: TextAlign.center,
+                style: AppTypography.body.copyWith(
+                  color: SoftUiColors.muted,
+                  height: 1.45,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const QuizLivesIndicator(lives: 0),
+              const Spacer(),
+              ContinueCtaButton(
+                enabled: true,
+                onPressed: _exitQuiz,
+                label: 'Retour au sentier',
+                showArrow: false,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildSummary() {
     final total = _allQuestions.length;
     final correct = _results.values.where((v) => v).length;
@@ -313,7 +407,7 @@ class _LessonQuizViewState extends State<LessonQuizView> {
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
           child: Column(
             children: [
-              const FinedgeMascot(size: 88, emojiSize: 44),
+              const FinedgeMascot(size: 88),
               const SizedBox(height: 20),
               Text(
                 passed ? 'Quiz réussi !' : 'Presque !',
@@ -392,7 +486,7 @@ class _LessonQuizViewState extends State<LessonQuizView> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Leçon validée — elle est cochée sur ton sentier.',
+                          'Leçon validée. Elle est cochée sur ton sentier.',
                           style: AppTypography.body.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
@@ -412,6 +506,44 @@ class _LessonQuizViewState extends State<LessonQuizView> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _FeedbackBanner extends StatelessWidget {
+  const _FeedbackBanner({required this.correct, required this.message});
+
+  final bool correct;
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = correct ? const Color(0xFF00C076) : const Color(0xFFE05252);
+    final bg = correct ? const Color(0xFFE8F8F0) : const Color(0xFFFDECEC);
+
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            correct ? Icons.check_circle_rounded : Icons.cancel_rounded,
+            color: color,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: AppTypography.label.copyWith(fontWeight: FontWeight.w800),
+            ),
+          ),
+        ],
       ),
     );
   }

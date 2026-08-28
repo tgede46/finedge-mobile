@@ -13,8 +13,10 @@ import 'core/preferences/app_preferences.dart';
 /// - USB/Wi‑Fi debug stable ; MFA OTP : Hot Restart avant le flux.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await AppPreferences.load();
   final session = SessionController(store: SharedPreferencesSessionStore());
-  await session.restore();
+  await Future.wait([
+    AppPreferences.load(),
+    session.restore(),
+  ]);
   runApp(FinEdgeApp(session: session));
 }

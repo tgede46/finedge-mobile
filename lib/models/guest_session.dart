@@ -1,6 +1,7 @@
 import 'diagnostic.dart';
 import 'learning_path.dart';
 import 'mfa_method.dart';
+import 'course_progress.dart';
 
 class GuestSession {
   const GuestSession({
@@ -18,6 +19,8 @@ class GuestSession {
     this.lessonProgress = const {},
     this.completedLessonIds = const {},
     this.diagnosticHistory = const [],
+    this.quizLivesRemaining = CourseProgress.dailyQuizLives,
+    this.quizLivesDay,
   });
 
   final String localId;
@@ -37,6 +40,10 @@ class GuestSession {
   final Set<String> completedLessonIds;
   /// Scores des diagnostics passés (historique).
   final List<int> diagnosticHistory;
+  /// Vies quiz restantes aujourd’hui (max 5, reset chaque jour).
+  final int quizLivesRemaining;
+  /// Jour calendaire des vies (`YYYY-MM-DD`).
+  final String? quizLivesDay;
 
   bool get isOnboarded => diagnostic != null;
   bool get isSignedIn => authProvider != null;
@@ -63,6 +70,8 @@ class GuestSession {
     if (completedLessonIds.isNotEmpty)
       'completedLessonIds': completedLessonIds.toList(),
     if (diagnosticHistory.isNotEmpty) 'diagnosticHistory': diagnosticHistory,
+    'quizLivesRemaining': quizLivesRemaining,
+    if (quizLivesDay != null) 'quizLivesDay': quizLivesDay,
     if (authProvider != null) 'authProvider': authProvider,
     if (email != null) 'email': email,
     if (diagnostic != null) 'diagnostic': diagnostic!.toJson(),
@@ -114,6 +123,9 @@ class GuestSession {
         }
         return <int>[];
       }(),
+      quizLivesRemaining:
+          json['quizLivesRemaining'] as int? ?? CourseProgress.dailyQuizLives,
+      quizLivesDay: json['quizLivesDay'] as String?,
       diagnostic: raw is Map
           ? Diagnostic.fromJson(Map<String, dynamic>.from(raw))
           : null,
@@ -134,6 +146,8 @@ class GuestSession {
     Map<String, int>? lessonProgress,
     Set<String>? completedLessonIds,
     List<int>? diagnosticHistory,
+    int? quizLivesRemaining,
+    String? quizLivesDay,
   }) {
     return GuestSession(
       localId: localId,
@@ -151,6 +165,8 @@ class GuestSession {
       lessonProgress: lessonProgress ?? this.lessonProgress,
       completedLessonIds: completedLessonIds ?? this.completedLessonIds,
       diagnosticHistory: diagnosticHistory ?? this.diagnosticHistory,
+      quizLivesRemaining: quizLivesRemaining ?? this.quizLivesRemaining,
+      quizLivesDay: quizLivesDay ?? this.quizLivesDay,
     );
   }
 }

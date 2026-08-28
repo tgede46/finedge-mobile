@@ -1,6 +1,6 @@
 import 'lesson_step.dart';
 
-/// Contenu des leçons — à enrichir quand tu envoies tes textes.
+/// Contenu des leçons — lecture seule ; le quiz de fin teste les acquis.
 abstract final class LessonBank {
   static List<LessonStep> stepsFor(String lessonId) {
     return switch (lessonId) {
@@ -17,7 +17,7 @@ abstract final class LessonBank {
       mascotLine: 'Salut ! Aujourd’hui on apprend à trier ton argent du marché.',
       body:
           'Savoir faire la différence entre un **besoin** et une **envie** '
-          'est la première étape pour maîtriser ton budget en FCFA.',
+          'est la première étape pour maîtriser ton budget.',
     ),
     LessonStep.read(
       id: 'explain',
@@ -28,37 +28,40 @@ abstract final class LessonBank {
           '**Envie** : nouveau téléphone, snack extra, sortie impulsive.\n\n'
           'Au marché, pose-toi : « Est-ce que je peux m’en passer ce mois ? »',
     ),
-    LessonStep.mcq(
-      id: 'q1',
-      prompt: 'Le loyer du mois, c’est plutôt…',
-      options: ['Un besoin', 'Une envie', 'Un luxe'],
-      correctIndex: 0,
+    LessonStep.read(
+      id: 'example_loyer',
+      title: 'Exemple concret',
+      mascotLine: 'Le loyer du mois, c’est un besoin, pas une envie.',
+      body:
+          'Chaque mois, le loyer doit être payé en priorité. '
+          'C’est indispensable pour avoir un toit.\n\n'
+          'Un nouveau téléphone alors que l’ancien fonctionne encore ? '
+          'C’est une envie. Elle peut attendre.',
     ),
-    LessonStep.fillBlank(
-      id: 'q2',
-      prompt: 'Complète la phrase :',
-      segments: ['Un ', '', ' est indispensable pour vivre ou travailler.'],
-      wordBank: ['besoin', 'envie', 'cadeau', 'besoin'],
-      correctWords: ['besoin'],
+    LessonStep.read(
+      id: 'phrase_cle',
+      title: 'La phrase à retenir',
+      mascotLine: 'Avant chaque dépense, pose-toi cette question.',
+      body:
+          '« Est-ce un besoin ou une envie ? »\n\n'
+          'Un **besoin** est indispensable pour vivre ou travailler.\n'
+          'Une **envie** est un plus, agréable, mais pas urgent.',
     ),
-    LessonStep.mcq(
-      id: 'q3',
-      prompt: 'Tu as 5 000 FCFA. Le riz manque à la maison. Tu achètes…',
-      options: ['Le riz d’abord', 'Des accessoires mode', 'Un jeu en ligne'],
-      correctIndex: 0,
+    LessonStep.read(
+      id: 'marche',
+      title: 'Au marché',
+      mascotLine: 'Imaginons : tu as 5 000 FCFA en poche.',
+      body:
+          'Le riz manque à la maison ? Achète le riz d’abord, c’est un besoin.\n\n'
+          'Les accessoires mode ou un jeu en ligne peuvent attendre.',
     ),
-    LessonStep.fillBlank(
-      id: 'q4',
-      prompt: 'Complète :',
-      segments: [
-        'Avant une dépense, demande-toi si c’est un ',
-        '',
-        ' ou une ',
-        '',
-        '.',
-      ],
-      wordBank: ['besoin', 'envie', 'besoin', 'envie'],
-      correctWords: ['besoin', 'envie'],
+    LessonStep.read(
+      id: 'recap',
+      title: 'À retenir',
+      mascotLine: 'Tu as fini la leçon. Passons au quiz !',
+      body:
+          'Avant une dépense, demande-toi si c’est un **besoin** ou une **envie**.\n\n'
+          'Au quiz, tu t’entraîneras sur des cas concrets pour valider la leçon.',
     ),
   ];
 
@@ -71,22 +74,32 @@ abstract final class LessonBank {
           'Entrées − sorties = ce qu’il te reste.\n\n'
           'Note tes dépenses fixes (loyer, transport) puis le reste pour la semaine.',
     ),
-    LessonStep.mcq(
-      id: 'q1',
-      prompt: 'Le budget, c’est surtout…',
-      options: [
-        'Un plan pour tes dépenses',
-        'Une punition',
-        'Un compte bancaire secret',
-      ],
-      correctIndex: 0,
+    LessonStep.read(
+      id: 'definition',
+      title: 'C’est quoi un budget ?',
+      mascotLine: 'Ce n’est ni une punition, ni un compte secret.',
+      body:
+          'Un budget, c’est un **plan pour tes dépenses** : '
+          'tu sais combien entre, combien sort, et ce qu’il te reste.\n\n'
+          'Sans plan, l’argent part souvent sans qu’on s’en rende compte.',
     ),
-    LessonStep.fillBlank(
-      id: 'q2',
-      prompt: 'Complète :',
-      segments: ['Entrées − ', '', ' = reste disponible'],
-      wordBank: ['sorties', 'envies', 'sorties'],
-      correctWords: ['sorties'],
+    LessonStep.read(
+      id: 'formule',
+      title: 'La formule de base',
+      mascotLine: 'Retiens cette équation simple.',
+      body:
+          '**Entrées − sorties = reste disponible**\n\n'
+          'Les entrées : salaire, aide, petits revenus.\n'
+          'Les sorties : loyer, transport, nourriture, factures.',
+    ),
+    LessonStep.read(
+      id: 'recap',
+      title: 'À retenir',
+      mascotLine: 'Tu es prêt pour le quiz !',
+      body:
+          'Note tes dépenses, calcule ce qu’il te reste, '
+          'et ajuste avant de dépenser.\n\n'
+          'Le quiz te permettra de vérifier que tu as bien compris.',
     ),
   ];
 

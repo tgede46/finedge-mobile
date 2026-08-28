@@ -324,7 +324,7 @@ class _MfaVerifyViewState extends State<MfaVerifyView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'SIMULATION — code envoyé',
+                        'SIMULATION : code envoyé',
                         style: AppTypography.caption.copyWith(
                           color: SoftUiColors.orangeDeep,
                           fontWeight: FontWeight.w800,

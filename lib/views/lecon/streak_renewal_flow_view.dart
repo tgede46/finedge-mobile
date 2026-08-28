@@ -238,7 +238,7 @@ class _StreakRenewalFlowViewState extends State<StreakRenewalFlowView> {
         MascotSpeechHeader(
           message:
               'Tu veux encore t’engager sur quelle période ? '
-              '(Tu peux passer — on garde ${StreakGoals.labelFor(previousGoalDays)}.)',
+              '(Tu peux passer, on garde ${StreakGoals.labelFor(previousGoalDays)}.)',
         ),
         const SizedBox(height: OnboardingSpacing.afterSpeech),
         StreakGoalList(

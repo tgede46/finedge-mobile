@@ -4,7 +4,7 @@ import '../core/theme/app_typography.dart';
 import '../core/theme/soft_ui_colors.dart';
 import 'finedge_mascot.dart';
 
-/// Mascotte coach (renard) + bulle de dialogue.
+/// Logo coach + bulle de dialogue.
 class MascotSpeechHeader extends StatelessWidget {
   const MascotSpeechHeader({super.key, required this.message});
 
@@ -15,12 +15,7 @@ class MascotSpeechHeader extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Image.asset(
-          FinedgeMascot.assetPath,
-          width: 56,
-          height: 56,
-          fit: BoxFit.contain,
-        ),
+        const FinedgeMascot(size: 56),
         const SizedBox(width: 12),
         Expanded(
           child: Container(
