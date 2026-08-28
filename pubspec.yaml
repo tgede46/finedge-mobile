@@ -1,7 +1,7 @@
 name: findge
 description: FinEdge Africa — éducation financière mobile (Flutter).
 publish_to: "none"
-version: 1.0.0+1
+version: 1.0.2+3
 
 environment:
   sdk: ^3.13.1
@@ -24,10 +24,20 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: assets/images/logo.png
-  adaptive_icon_background: "#F59A2E"
-  adaptive_icon_foreground: assets/images/logo.png
+  image_path: assets/images/logo1.png
   remove_alpha_ios: true
+  web:
+    generate: true
+    image_path: assets/images/logo1.png
+    background_color: "#F59A2E"
+    theme_color: "#F59A2E"
+  windows:
+    generate: true
+    image_path: assets/images/logo1.png
+    icon_size: 256
+  macos:
+    generate: true
+    image_path: assets/images/logo1.png
 
 flutter_native_splash:
   color: "#FDF8F3"
