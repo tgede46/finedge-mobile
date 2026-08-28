@@ -352,6 +352,7 @@ class _OnboardingViewState extends State<OnboardingView> {
             DuoChoiceTile(
               title: c.label,
               selected: _currency == c.id,
+              dense: true,
               onTap: () => setState(() => _currency = c.id),
             ),
         ],

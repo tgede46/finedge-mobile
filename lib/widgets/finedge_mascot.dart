@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../core/theme/soft_ui_colors.dart';
-
-/// Mascotte / logo FinEdge — renard (`assets/images/logo.png`).
+/// Mascotte / logo FinEdge — `assets/images/logo.png` (déjà circulaire).
 class FinedgeMascot extends StatelessWidget {
   const FinedgeMascot({
     super.key,
     this.size = 72,
     this.emojiSize,
-    this.showCircle = true,
+    this.showCircle = false,
   });
 
   final double size;
@@ -21,28 +19,12 @@ class FinedgeMascot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final logoSize = emojiSize ?? (showCircle ? size * 0.92 : size);
-    final child = Image.asset(
+    return Image.asset(
       assetPath,
-      width: logoSize,
-      height: logoSize,
+      width: emojiSize ?? size,
+      height: emojiSize ?? size,
       fit: BoxFit.contain,
       filterQuality: FilterQuality.high,
-    );
-
-    if (!showCircle) return child;
-
-    return Container(
-      width: size,
-      height: size,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: SoftUiColors.tanSoft,
-        shape: BoxShape.circle,
-        border: Border.all(color: SoftUiColors.border, width: 2),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: child,
     );
   }
 }

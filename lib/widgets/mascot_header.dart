@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
+import '../core/theme/soft_ui_colors.dart';
 import 'finedge_mascot.dart';
 
 class MascotHeader extends StatelessWidget {
@@ -14,18 +14,25 @@ class MascotHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const CircleAvatar(
-          radius: 28,
-          backgroundColor: AppColors.primary,
-          backgroundImage: AssetImage(FinedgeMascot.assetPath),
+        Image.asset(
+          FinedgeMascot.assetPath,
+          width: 56,
+          height: 56,
+          fit: BoxFit.contain,
         ),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: AppTypography.heading),
-              Text(subtitle, style: AppTypography.caption),
+              Text(
+                title,
+                style: AppTypography.heading.copyWith(color: SoftUiColors.ink),
+              ),
+              Text(
+                subtitle,
+                style: AppTypography.caption.copyWith(color: SoftUiColors.muted),
+              ),
             ],
           ),
         ),

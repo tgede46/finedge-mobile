@@ -15,22 +15,11 @@ class MascotSpeechHeader extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 68,
-          height: 68,
-          decoration: BoxDecoration(
-            color: SoftUiColors.tanSoft,
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: SoftUiColors.border),
-          ),
-          alignment: Alignment.center,
-          clipBehavior: Clip.antiAlias,
-          child: Image.asset(
-            FinedgeMascot.assetPath,
-            width: 56,
-            height: 56,
-            fit: BoxFit.contain,
-          ),
+        Image.asset(
+          FinedgeMascot.assetPath,
+          width: 56,
+          height: 56,
+          fit: BoxFit.contain,
         ),
         const SizedBox(width: 12),
         Expanded(

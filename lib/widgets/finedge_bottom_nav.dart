@@ -87,7 +87,7 @@ class _NavItem extends StatelessWidget {
             AnimatedContainer(
               duration: const Duration(milliseconds: 180),
               curve: Curves.easeOut,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: selected ? SoftUiColors.orange : Colors.transparent,
                 borderRadius: BorderRadius.circular(14),
@@ -99,14 +99,16 @@ class _NavItem extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 4),
-            Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: SoftUiColors.ink,
-                fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                fontSize: 11,
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                maxLines: 1,
+                style: TextStyle(
+                  color: SoftUiColors.ink,
+                  fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                  fontSize: 11,
+                ),
               ),
             ),
           ],

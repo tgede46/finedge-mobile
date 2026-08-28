@@ -27,12 +27,8 @@ class IntroMascot extends StatelessWidget {
           animation: glow,
           builder: (context, child) {
             return Container(
-              width: size,
-              height: size,
               decoration: BoxDecoration(
-                color: SoftUiColors.card,
                 shape: BoxShape.circle,
-                border: Border.all(color: SoftUiColors.border, width: 2),
                 boxShadow: [
                   BoxShadow(
                     color: SoftUiColors.orange.withValues(
@@ -43,15 +39,13 @@ class IntroMascot extends StatelessWidget {
                   ),
                 ],
               ),
-              alignment: Alignment.center,
-              clipBehavior: Clip.antiAlias,
               child: child,
             );
           },
           child: Image.asset(
             FinedgeMascot.assetPath,
-            width: size * 0.88,
-            height: size * 0.88,
+            width: size,
+            height: size,
             fit: BoxFit.contain,
           ),
         ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
+import '../core/theme/soft_ui_colors.dart';
 
 class QuestionPills extends StatelessWidget {
   const QuestionPills({super.key, required this.labels, this.onSelected});
@@ -23,11 +23,11 @@ class QuestionPills extends StatelessWidget {
           return ActionChip(
             label: Text(label),
             labelStyle: AppTypography.caption.copyWith(
-              color: AppColors.brown,
+              color: SoftUiColors.ink,
               fontWeight: FontWeight.w600,
             ),
-            backgroundColor: AppColors.surface,
-            side: BorderSide(color: AppColors.primary.withValues(alpha: 0.35)),
+            backgroundColor: SoftUiColors.card,
+            side: BorderSide(color: SoftUiColors.orange.withValues(alpha: 0.4)),
             onPressed: () => onSelected?.call(label),
           );
         },

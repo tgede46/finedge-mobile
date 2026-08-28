@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
+import '../core/theme/soft_ui_colors.dart';
 
 class ChatBubble extends StatelessWidget {
   const ChatBubble({
@@ -23,8 +23,8 @@ class ChatBubble extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isUser
-              ? AppColors.primary.withValues(alpha: 0.12)
-              : AppColors.surface,
+              ? SoftUiColors.orange.withValues(alpha: 0.14)
+              : SoftUiColors.card,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(isUser ? 20 : 4),
             topRight: Radius.circular(isUser ? 4 : 20),
@@ -32,16 +32,12 @@ class ChatBubble extends StatelessWidget {
             bottomRight: const Radius.circular(20),
           ),
           border: Border.all(
-            color: isUser
-                ? AppColors.primary.withValues(alpha: 0.25)
-                : AppColors.brown.withValues(alpha: 0.08),
+            color: isUser ? SoftUiColors.orange : SoftUiColors.border,
           ),
         ),
         child: Text(
           message,
-          style: AppTypography.body.copyWith(
-            color: isUser ? AppColors.brown : null,
-          ),
+          style: AppTypography.body.copyWith(color: SoftUiColors.ink),
         ),
       ),
     );

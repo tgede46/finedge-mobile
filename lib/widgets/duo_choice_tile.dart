@@ -16,6 +16,7 @@ class DuoChoiceTile extends StatelessWidget {
     this.leading,
     this.showCheck = false,
     this.badge,
+    this.dense = false,
   });
 
   final String title;
@@ -25,6 +26,7 @@ class DuoChoiceTile extends StatelessWidget {
   final bool showCheck;
   final String? badge;
   final VoidCallback onTap;
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +34,9 @@ class DuoChoiceTile extends StatelessWidget {
     final bg = selected ? const Color(0xFFFFF1E0) : SoftUiColors.card;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: OnboardingSpacing.betweenTiles),
+      padding: EdgeInsets.only(
+        bottom: dense ? 8 : OnboardingSpacing.betweenTiles,
+      ),
       child: Material(
         color: bg,
         borderRadius: BorderRadius.circular(16),
@@ -43,9 +47,9 @@ class DuoChoiceTile extends StatelessWidget {
           },
           borderRadius: BorderRadius.circular(16),
           child: Container(
-            padding: const EdgeInsets.symmetric(
+            padding: EdgeInsets.symmetric(
               horizontal: OnboardingSpacing.tilePadH,
-              vertical: OnboardingSpacing.tilePadV,
+              vertical: dense ? 10 : OnboardingSpacing.tilePadV,
             ),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),

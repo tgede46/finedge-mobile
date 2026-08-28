@@ -96,22 +96,11 @@ class MascotBubble extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 64,
-          height: 64,
-          decoration: BoxDecoration(
-            color: SoftUiColors.tanSoft,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: SoftUiColors.border),
-          ),
-          alignment: Alignment.center,
-          clipBehavior: Clip.antiAlias,
-          child: Image.asset(
-            FinedgeMascot.assetPath,
-            width: 52,
-            height: 52,
-            fit: BoxFit.contain,
-          ),
+        Image.asset(
+          FinedgeMascot.assetPath,
+          width: 56,
+          height: 56,
+          fit: BoxFit.contain,
         ),
         const SizedBox(width: 10),
         Expanded(

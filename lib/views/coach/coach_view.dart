@@ -19,7 +19,11 @@ class CoachView extends StatefulWidget {
 class _CoachViewState extends State<CoachView> {
   final _scroll = ScrollController();
   final _input = TextEditingController();
-  final _messages = <CoachChatMessage>[];
+  final _messages = <CoachChatMessage>[
+    const CoachChatMessage(
+      text: 'Salut ! Écris-moi ici, ou lance une simulation avec les cartes.',
+    ),
+  ];
 
   String? _scenarioId;
   String? _stepId;
@@ -351,7 +355,7 @@ class _ScenarioPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final scenarios = CoachSimulationBank.scenariosFor(currencyCode);
     return SizedBox(
-      height: 124,
+      height: 148,
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
@@ -381,7 +385,7 @@ class _ScenarioCard extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(16),
         child: Container(
-          width: 168,
+          width: 188,
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),

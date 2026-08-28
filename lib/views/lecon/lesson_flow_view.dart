@@ -368,7 +368,7 @@ class _McqStep extends StatelessWidget {
         if (validated && selected != step.correctIndex) ...[
           const SizedBox(height: 12),
           Text(
-            'Tu as raté — lis l’indice et continue pour revoir au quiz.',
+            'Ce n’est pas ça — lis l’indice, puis continue. Tu reverras ça au quiz.',
             style: AppTypography.caption.copyWith(color: SoftUiColors.orangeDeep),
           ),
         ],

@@ -201,7 +201,7 @@ class _LessonQuizViewState extends State<LessonQuizView> {
               ),
               if (wrongPendingChoice) ...[
                 Text(
-                  'Tu as raté. Veux-tu voir l’explication ?',
+                  'Pas tout à fait. Tu veux voir l’explication ?',
                   textAlign: TextAlign.center,
                   style: AppTypography.label.copyWith(
                     color: SoftUiColors.ink,
