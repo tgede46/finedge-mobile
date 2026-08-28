@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/theme/app_colors.dart';
 import '../core/theme/app_typography.dart';
+import 'finedge_mascot.dart';
 
 class MascotHeader extends StatelessWidget {
   const MascotHeader({super.key, required this.title, required this.subtitle});
@@ -16,7 +17,7 @@ class MascotHeader extends StatelessWidget {
         const CircleAvatar(
           radius: 28,
           backgroundColor: AppColors.primary,
-          child: Text('🐊', style: TextStyle(fontSize: 28)),
+          child: Text(FinedgeMascot.emoji, style: TextStyle(fontSize: 28)),
         ),
         const SizedBox(width: 12),
         Expanded(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/theme/app_typography.dart';
 import '../core/theme/soft_ui_colors.dart';
+import 'finedge_mascot.dart';
 
 /// Hero Get Started — icône coach + marque (sans texte marketing).
 class GetStartedHero extends StatelessWidget {
@@ -46,7 +47,7 @@ class GetStartedHero extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    '🐊',
+                    FinedgeMascot.emoji,
                     style: TextStyle(fontSize: mascotSize * 0.44),
                   ),
                 ),

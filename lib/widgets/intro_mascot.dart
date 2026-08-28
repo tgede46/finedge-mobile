@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../core/theme/soft_ui_colors.dart';
+import 'finedge_mascot.dart';
 
 class IntroMascot extends StatelessWidget {
   const IntroMascot({
@@ -47,7 +48,7 @@ class IntroMascot extends StatelessWidget {
             );
           },
           child: Text(
-            '🐊',
+            FinedgeMascot.emoji,
             style: TextStyle(fontSize: size * 0.44),
           ),
         ),

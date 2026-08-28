@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../core/theme/soft_ui_colors.dart';
 
-/// Mascotte FinEdge — crocodile emoji (charte crème / orange).
+/// Mascotte FinEdge — renard emoji (charte crème / orange).
 class FinedgeMascot extends StatelessWidget {
   const FinedgeMascot({
     super.key,
@@ -15,7 +15,7 @@ class FinedgeMascot extends StatelessWidget {
   final double? emojiSize;
   final bool showCircle;
 
-  static const emoji = '🐊';
+  static const emoji = '🦊';
 
   @override
   Widget build(BuildContext context) {

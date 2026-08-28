@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../core/theme/app_typography.dart';
 import '../core/theme/soft_ui_colors.dart';
 import 'duo_choice_tile.dart';
+import 'finedge_mascot.dart';
 
 class StreakGoalOption {
   const StreakGoalOption({required this.days, required this.rewardLabel});
@@ -104,7 +105,7 @@ class MascotBubble extends StatelessWidget {
             border: Border.all(color: SoftUiColors.border),
           ),
           alignment: Alignment.center,
-          child: const Text('🐊', style: TextStyle(fontSize: 32)),
+          child: const Text(FinedgeMascot.emoji, style: TextStyle(fontSize: 32)),
         ),
         const SizedBox(width: 10),
         Expanded(

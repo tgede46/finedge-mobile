@@ -5,6 +5,7 @@ import '../../controllers/session_scope.dart';
 import '../../core/feedback/app_feedback.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/theme/soft_ui_colors.dart';
+import '../../models/course_curriculum.dart';
 import '../../models/lesson_bank.dart';
 import '../../models/lesson_step.dart';
 import '../../widgets/continue_cta_button.dart';
@@ -25,6 +26,8 @@ class LessonFlowView extends StatefulWidget {
 class _LessonFlowViewState extends State<LessonFlowView> {
   late List<LessonStep> _steps;
   late int _stepIndex;
+  int? _pendingResumeStep;
+  bool _resumeConfirmed = true;
   int? _selectedMcq;
   bool _questionValid = false;
   bool _mcqValidated = false;
@@ -41,10 +44,53 @@ class _LessonFlowViewState extends State<LessonFlowView> {
     if (_initialized) return;
     _initialized = true;
     final session = SessionScope.of(context);
-    _stepIndex = session
-        .lessonStepIndex(widget.lessonId)
-        .clamp(0, _steps.length - 1);
+    final rawSaved = session.lessonStepIndex(widget.lessonId);
+    if (rawSaved >= _steps.length) {
+      session.clearLessonProgress(widget.lessonId);
+    }
+    final saved = rawSaved.clamp(0, _steps.length - 1);
+    if (saved > 0) {
+      _pendingResumeStep = saved;
+      _stepIndex = 0;
+      _resumeConfirmed = false;
+    } else {
+      _pendingResumeStep = null;
+      _stepIndex = 0;
+      _resumeConfirmed = true;
+    }
     _resetQuestionState();
+  }
+
+  bool get _showResumeGate =>
+      !_resumeConfirmed &&
+      _pendingResumeStep != null &&
+      _pendingResumeStep! > 0;
+
+  void _confirmResume() {
+    AppFeedback.light();
+    setState(() {
+      _stepIndex = _pendingResumeStep!;
+      _resumeConfirmed = true;
+      _resetQuestionState();
+    });
+  }
+
+  Future<void> _restartLesson() async {
+    AppFeedback.selection();
+    await SessionScope.of(context).clearLessonProgress(widget.lessonId);
+    if (!mounted) return;
+    setState(() {
+      _pendingResumeStep = null;
+      _stepIndex = 0;
+      _resumeConfirmed = true;
+      _resetQuestionState();
+    });
+  }
+
+  String get _lessonTitle {
+    final copy = CourseCurriculum.lessonCopy[widget.lessonId];
+    if (copy != null) return copy.$1;
+    return _steps.first.title ?? 'Leçon';
   }
 
   bool _initialized = false;
@@ -63,7 +109,13 @@ class _LessonFlowViewState extends State<LessonFlowView> {
 
   Future<void> _exit() async {
     await _persistStep();
-    if (mounted) context.pop();
+    if (!mounted) return;
+    AppFeedback.light();
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/lecons');
+    }
   }
 
   Future<void> _advance() async {
@@ -124,8 +176,30 @@ class _LessonFlowViewState extends State<LessonFlowView> {
 
   @override
   Widget build(BuildContext context) {
+    if (_showResumeGate) {
+      return PopScope(
+        canPop: false,
+        onPopInvokedWithResult: (didPop, _) async {
+          if (didPop) return;
+          if (mounted) context.pop();
+        },
+        child: Scaffold(
+          backgroundColor: SoftUiColors.cream,
+          body: SafeArea(
+            child: _ResumeGate(
+              lessonTitle: _lessonTitle,
+              stepIndex: _pendingResumeStep!,
+              totalSteps: _steps.length,
+              onResume: _confirmResume,
+              onRestart: _restartLesson,
+              onClose: () => context.pop(),
+            ),
+          ),
+        ),
+      );
+    }
+
     final progress = ((_stepIndex + 1) / _steps.length).clamp(0.08, 1.0);
-    final resumeHint = _stepIndex > 0;
 
     return PopScope(
       canPop: false,
@@ -169,39 +243,6 @@ class _LessonFlowViewState extends State<LessonFlowView> {
                     ),
                   ],
                 ),
-                if (resumeHint) ...[
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF1E0),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: SoftUiColors.border),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.play_circle_outline,
-                          size: 18,
-                          color: SoftUiColors.orangeDeep,
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            'Tu reprends où tu t’étais arrêté.',
-                            style: AppTypography.caption.copyWith(
-                              color: SoftUiColors.ink,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
                 const SizedBox(height: 12),
                 Expanded(child: _buildStep()),
                 const SizedBox(height: 12),
@@ -323,6 +364,93 @@ class _McqStep extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+class _ResumeGate extends StatelessWidget {
+  const _ResumeGate({
+    required this.lessonTitle,
+    required this.stepIndex,
+    required this.totalSteps,
+    required this.onResume,
+    required this.onRestart,
+    required this.onClose,
+  });
+
+  final String lessonTitle;
+  final int stepIndex;
+  final int totalSteps;
+  final VoidCallback onResume;
+  final VoidCallback onRestart;
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: IconButton(
+              onPressed: onClose,
+              icon: const Icon(Icons.close_rounded),
+              color: SoftUiColors.muted,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            lessonTitle,
+            style: AppTypography.display.copyWith(
+              color: SoftUiColors.orangeDeep,
+              fontSize: 28,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Tu t’étais arrêté à l’étape ${stepIndex + 1} sur $totalSteps.\n'
+            'Que veux-tu faire ?',
+            style: AppTypography.body.copyWith(
+              color: SoftUiColors.ink,
+              height: 1.45,
+            ),
+          ),
+          const Spacer(),
+          ContinueCtaButton(
+            enabled: true,
+            onPressed: onResume,
+            label: 'Reprendre où je me suis arrêté',
+            showArrow: false,
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 54,
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: onRestart,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: SoftUiColors.ink,
+                side: const BorderSide(color: SoftUiColors.border),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              child: Text(
+                'Recommencer depuis le début',
+                style: AppTypography.button.copyWith(color: SoftUiColors.ink),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Choisis comment continuer.',
+            textAlign: TextAlign.center,
+            style: AppTypography.caption.copyWith(color: SoftUiColors.muted),
+          ),
+        ],
+      ),
     );
   }
 }

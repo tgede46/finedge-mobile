@@ -72,9 +72,9 @@ class AccueilView extends StatelessWidget {
                   ? 'Continuer ta leçon'
                   : 'Commencer ta 1ʳᵉ leçon',
               subtitle: inProgressId != null
-                  ? 'Tu reprends exactement où tu t’étais arrêté.'
+                  ? 'Ta leçon est en cours.'
                   : session.hasCompletedFirstLesson
-                  ? 'Reprends là où tu t’es arrêté.'
+                  ? 'Poursuis ton sentier financier.'
                   : '3 minutes · découvre le budget en FCFA.',
               onPressed: () {
                 if (inProgressId != null) {

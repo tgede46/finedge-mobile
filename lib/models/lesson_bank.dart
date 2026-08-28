@@ -96,13 +96,9 @@ abstract final class LessonBank {
         id: 'intro',
         title: 'Leçon',
         mascotLine: 'C’est parti pour cette leçon !',
-        body: 'Contenu à venir pour « $lessonId ». Envoie-nous ton texte pour qu’on le branche ici.',
-      ),
-      LessonStep.mcq(
-        id: 'q1',
-        prompt: 'Prêt à continuer ton sentier ?',
-        options: ['Oui', 'Bien sûr', 'C’est parti'],
-        correctIndex: 0,
+        body:
+            'Contenu à venir pour « $lessonId ». '
+            'Lis ce résumé puis passe au quiz de fin pour valider la leçon.',
       ),
     ];
   }

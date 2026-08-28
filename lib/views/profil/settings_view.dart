@@ -6,6 +6,7 @@ import '../../core/feedback/app_feedback.dart';
 import '../../core/preferences/app_preferences.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/theme/soft_ui_colors.dart';
+import '../../widgets/finedge_mascot.dart';
 
 /// Paramètres — préférences + connexion/déconnexion + lien À propos.
 class SettingsView extends StatefulWidget {
@@ -138,7 +139,7 @@ class _SettingsViewState extends State<SettingsView> {
             children: [
               ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                leading: const Text('🐊', style: TextStyle(fontSize: 22)),
+                leading: const Text(FinedgeMascot.emoji, style: TextStyle(fontSize: 22)),
                 title: Text('FinEdge', style: AppTypography.label),
                 trailing: const Icon(Icons.chevron_right_rounded),
                 onTap: () {

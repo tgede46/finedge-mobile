@@ -4,7 +4,7 @@ import '../core/theme/app_typography.dart';
 import '../core/theme/soft_ui_colors.dart';
 import 'finedge_mascot.dart';
 
-/// Mascotte coach (crocodile) + bulle de dialogue.
+/// Mascotte coach (renard) + bulle de dialogue.
 class MascotSpeechHeader extends StatelessWidget {
   const MascotSpeechHeader({super.key, required this.message});
 

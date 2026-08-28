@@ -91,19 +91,18 @@ GoRouter createAppRouter({required SessionController session}) {
         builder: (context, state) => const FirstLessonFlowView(),
       ),
       GoRoute(
+        path: '/lecon/:id/quiz',
+        name: 'lecon-quiz',
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) {
+          final id = state.pathParameters['id'] ?? 'besoins_envies';
+          return LessonQuizView(lessonId: id);
+        },
+      ),
+      GoRoute(
         path: '/lecon/:id',
         name: 'lecon',
         parentNavigatorKey: rootNavigatorKey,
-        routes: [
-          GoRoute(
-            path: 'quiz',
-            name: 'lecon-quiz',
-            builder: (context, state) {
-              final id = state.pathParameters['id'] ?? 'besoins_envies';
-              return LessonQuizView(lessonId: id);
-            },
-          ),
-        ],
         builder: (context, state) {
           final id = state.pathParameters['id'] ?? 'besoins_envies';
           return LessonFlowView(lessonId: id);

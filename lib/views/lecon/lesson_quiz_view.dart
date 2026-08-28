@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -7,14 +5,13 @@ import '../../controllers/session_scope.dart';
 import '../../core/feedback/app_feedback.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/theme/soft_ui_colors.dart';
-import '../../models/course_progress.dart';
 import '../../models/lesson_quiz_bank.dart';
 import '../../models/lesson_quiz_question.dart';
 import '../../widgets/continue_cta_button.dart';
 import '../../widgets/duo_choice_tile.dart';
 import '../../widgets/finedge_mascot.dart';
 
-/// Quiz de fin — 10 questions · 5 min · explication après validation.
+/// Quiz de fin — 10 questions · explication sur demande après validation.
 class LessonQuizView extends StatefulWidget {
   const LessonQuizView({super.key, required this.lessonId});
 
@@ -27,58 +24,25 @@ class LessonQuizView extends StatefulWidget {
 class _LessonQuizViewState extends State<LessonQuizView> {
   late List<LessonQuizQuestion> _allQuestions;
   late List<int> _queue;
-  late Timer _timer;
-  Duration _remaining = Duration(minutes: CourseProgress.quizDurationMinutes);
 
   int _queueIndex = 0;
   int? _selected;
   bool _validated = false;
   bool? _lastCorrect;
+  bool _showExplanation = false;
   final Map<int, bool> _results = {};
   bool _showSummary = false;
-  bool _timeUp = false;
 
   @override
   void initState() {
     super.initState();
     _allQuestions = LessonQuizBank.questionsFor(widget.lessonId);
     _queue = List.generate(_allQuestions.length, (i) => i);
-    _timer = Timer.periodic(const Duration(seconds: 1), _tick);
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-
-  void _tick(Timer _) {
-    if (_showSummary) return;
-    if (_remaining.inSeconds <= 0) {
-      _onTimeUp();
-      return;
-    }
-    setState(() => _remaining -= const Duration(seconds: 1));
-  }
-
-  void _onTimeUp() {
-    if (_timeUp) return;
-    _timeUp = true;
-    for (var i = 0; i < _allQuestions.length; i++) {
-      _results.putIfAbsent(i, () => false);
-    }
-    setState(() => _showSummary = true);
   }
 
   LessonQuizQuestion get _question => _allQuestions[_queue[_queueIndex]];
 
   int get _globalIndex => _queue[_queueIndex];
-
-  String get _timerLabel {
-    final m = _remaining.inMinutes.remainder(60).toString().padLeft(2, '0');
-    final s = _remaining.inSeconds.remainder(60).toString().padLeft(2, '0');
-    return '$m:$s';
-  }
 
   void _validate() {
     if (_selected == null || _validated) return;
@@ -86,6 +50,7 @@ class _LessonQuizViewState extends State<LessonQuizView> {
     setState(() {
       _validated = true;
       _lastCorrect = correct;
+      _showExplanation = false;
       _results[_globalIndex] = correct;
     });
     if (correct) {
@@ -105,7 +70,13 @@ class _LessonQuizViewState extends State<LessonQuizView> {
       _selected = null;
       _validated = false;
       _lastCorrect = null;
+      _showExplanation = false;
     });
+  }
+
+  void _revealExplanation() {
+    AppFeedback.selection();
+    setState(() => _showExplanation = true);
   }
 
   List<int> get _failedIndices =>
@@ -120,9 +91,8 @@ class _LessonQuizViewState extends State<LessonQuizView> {
       _selected = null;
       _validated = false;
       _lastCorrect = null;
+      _showExplanation = false;
       _showSummary = false;
-      _timeUp = false;
-      _remaining = Duration(minutes: CourseProgress.quizDurationMinutes);
     });
   }
 
@@ -142,15 +112,31 @@ class _LessonQuizViewState extends State<LessonQuizView> {
     }
   }
 
+  void _exitQuiz() {
+    AppFeedback.light();
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/lecons');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_showSummary) return _buildSummary();
 
     final progress = (_queueIndex + 1) / _queue.length;
+    final wrongPendingChoice =
+        _validated && _lastCorrect == false && !_showExplanation;
 
-    return Scaffold(
-      backgroundColor: SoftUiColors.cream,
-      body: SafeArea(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _exitQuiz();
+      },
+      child: Scaffold(
+        backgroundColor: SoftUiColors.cream,
+        body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
           child: Column(
@@ -159,7 +145,7 @@ class _LessonQuizViewState extends State<LessonQuizView> {
               Row(
                 children: [
                   IconButton(
-                    onPressed: () => context.pop(),
+                    onPressed: _exitQuiz,
                     icon: const Icon(Icons.close_rounded),
                     color: SoftUiColors.muted,
                   ),
@@ -171,29 +157,6 @@ class _LessonQuizViewState extends State<LessonQuizView> {
                         minHeight: 10,
                         backgroundColor: SoftUiColors.progressTrack,
                         color: SoftUiColors.orange,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _remaining.inSeconds <= 60
-                          ? const Color(0xFFFFEBEE)
-                          : SoftUiColors.card,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: SoftUiColors.border),
-                    ),
-                    child: Text(
-                      _timerLabel,
-                      style: AppTypography.label.copyWith(
-                        fontWeight: FontWeight.w900,
-                        color: _remaining.inSeconds <= 60
-                            ? SoftUiColors.orangeDeep
-                            : SoftUiColors.ink,
                       ),
                     ),
                   ),
@@ -228,50 +191,52 @@ class _LessonQuizViewState extends State<LessonQuizView> {
                             ? () {}
                             : () => setState(() => _selected = i),
                       ),
-                    if (_validated && _lastCorrect == false) ...[
-                      const SizedBox(height: 16),
-                      _ExplanationCard(text: _question.explanation),
-                    ],
-                    if (_validated && _lastCorrect == true) ...[
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFE8F8F0),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(color: const Color(0xFF00C076)),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(
-                              Icons.check_circle_rounded,
-                              color: Color(0xFF00C076),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Text(
-                                'Bonne réponse !',
-                                style: AppTypography.label.copyWith(
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
-              if (!_validated)
+              if (wrongPendingChoice) ...[
+                Text(
+                  'Tu as raté. Veux-tu voir l’explication ?',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.label.copyWith(
+                    color: SoftUiColors.ink,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 10),
                 ContinueCtaButton(
-                  enabled: _selected != null,
-                  onPressed: _validate,
-                  label: 'Valider',
+                  enabled: true,
+                  onPressed: _revealExplanation,
+                  label: 'Voir l’explication',
                   showArrow: false,
-                )
-              else
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 50,
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    onPressed: _continueAfterQuestion,
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: SoftUiColors.ink,
+                      side: const BorderSide(color: SoftUiColors.border),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Text(
+                      _queueIndex >= _queue.length - 1
+                          ? 'Continuer vers les résultats'
+                          : 'Continuer sans explication',
+                      style: AppTypography.button.copyWith(
+                        color: SoftUiColors.ink,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ),
+              ] else if (_validated && _lastCorrect == false && _showExplanation) ...[
+                _ExplanationCard(text: _question.explanation),
+                const SizedBox(height: 12),
                 ContinueCtaButton(
                   enabled: true,
                   onPressed: _continueAfterQuestion,
@@ -280,9 +245,52 @@ class _LessonQuizViewState extends State<LessonQuizView> {
                       : 'Continuer',
                   showArrow: false,
                 ),
+              ] else if (_validated && _lastCorrect == true) ...[
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE8F8F0),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFF00C076)),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.check_circle_rounded,
+                        color: Color(0xFF00C076),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Bonne réponse !',
+                          style: AppTypography.label.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ContinueCtaButton(
+                  enabled: true,
+                  onPressed: _continueAfterQuestion,
+                  label: _queueIndex >= _queue.length - 1
+                      ? 'Voir les résultats'
+                      : 'Continuer',
+                  showArrow: false,
+                ),
+              ] else
+                ContinueCtaButton(
+                  enabled: _selected != null,
+                  onPressed: _validate,
+                  label: 'Valider',
+                  showArrow: false,
+                ),
             ],
           ),
         ),
+      ),
       ),
     );
   }
@@ -314,16 +322,6 @@ class _LessonQuizViewState extends State<LessonQuizView> {
                 '$correct / $total bonnes réponses',
                 style: AppTypography.title.copyWith(color: SoftUiColors.ink),
               ),
-              if (_timeUp) ...[
-                const SizedBox(height: 8),
-                Text(
-                  'Temps écoulé — les questions non validées comptent comme ratées.',
-                  textAlign: TextAlign.center,
-                  style: AppTypography.caption.copyWith(
-                    color: SoftUiColors.muted,
-                  ),
-                ),
-              ],
               const SizedBox(height: 24),
               if (!passed) ...[
                 Container(
@@ -345,7 +343,7 @@ class _LessonQuizViewState extends State<LessonQuizView> {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Relis l’explication puis retente uniquement celles que tu as ratées.',
+                        'Retente uniquement celles que tu as ratées.',
                         style: AppTypography.body.copyWith(
                           color: SoftUiColors.muted,
                           height: 1.35,
@@ -363,7 +361,7 @@ class _LessonQuizViewState extends State<LessonQuizView> {
                 ),
                 const SizedBox(height: 10),
                 TextButton(
-                  onPressed: () => context.pop(),
+                  onPressed: _exitQuiz,
                   child: Text(
                     'Revoir la leçon',
                     style: AppTypography.label.copyWith(
@@ -433,7 +431,7 @@ class _ExplanationCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Tu as raté — explication',
+            'Explication',
             style: AppTypography.label.copyWith(
               color: SoftUiColors.orangeDeep,
               fontWeight: FontWeight.w900,

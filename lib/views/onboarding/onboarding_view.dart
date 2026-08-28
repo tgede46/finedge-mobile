@@ -12,6 +12,7 @@ import '../../widgets/continue_cta_button.dart';
 import '../../widgets/duo_choice_tile.dart';
 import '../../widgets/duo_outline_field.dart';
 import '../../widgets/duo_question_scaffold.dart';
+import '../../widgets/finedge_mascot.dart';
 import '../../widgets/mascot_speech_header.dart';
 import '../../widgets/onboarding_progress_header.dart';
 
@@ -297,7 +298,7 @@ class _OnboardingViewState extends State<OnboardingView> {
         children: [
           OnboardingProgressHeader(step: 1, total: _totalSteps),
           const Spacer(),
-          const Text('🐊', style: TextStyle(fontSize: 64)),
+          Text(FinedgeMascot.emoji, style: const TextStyle(fontSize: 64)),
           const SizedBox(height: 20),
           Text(
             'Quelques questions pour mieux te comprendre',
