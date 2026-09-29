@@ -1,0 +1,102 @@
+# Sprint Status Tracking — FinEdge Africa
+# Generated based on _bmad-output/planning-artifacts/epics.md
+# Git Flow Convention: feature/epic-{N}-story-{M}-{name}
+
+project: FinEdge Africa
+status: in-progress
+current_focus:
+  - mobile (Flutter — ce dépôt)
+
+epics:
+  - id: epic-1
+    title: "Fondations, Onboarding & Parcours Personnalisé"
+    status: in-progress
+    stories:
+      - id: story-1.1
+        title: "Initialisation du Projet Mobile Flutter & Design System FinEdge"
+        branch: "feature/epic-1-story-1.1-flutter-design-system"
+        status: done
+      - id: story-1.2
+        title: "Questionnaire de Diagnostic Initial & Génération du Sentier Personnalisé"
+        branch: "feature/epic-1-story-1.2-onboarding-diagnostic"
+        status: in-progress
+      - id: story-1.3
+        title: "Authentification par Numéro de Téléphone OTP & Mode Invité Persistant"
+        branch: "feature/epic-1-story-1.3-auth-otp-guest"
+        status: todo
+
+  - id: epic-2
+    title: "Micro-Learning, Gamification & Mode Hors-Ligne (Sentier Duolingo-like)"
+    status: todo
+    stories:
+      - id: story-2.1
+        title: "Composant Sentier de Progression Vertical (Duolingo-Style)"
+        branch: "feature/epic-2-story-2.1-duolingo-path"
+        status: todo
+      - id: story-2.2
+        title: "Lecteur de Micro-Leçon & Moteur de Quiz Interactif"
+        branch: "feature/epic-2-story-2.2-lesson-quiz-player"
+        status: todo
+      - id: story-2.3
+        title: "Système de Gamification (Points XP, Flammes de Séries / Streaks & Trophées)"
+        branch: "feature/epic-2-story-2.3-gamification-streaks"
+        status: todo
+      - id: story-2.4
+        title: "Moteur de Persistance Locale Isar & Synchronisation Automatique"
+        branch: "feature/epic-2-story-2.4-offline-sync-isar"
+        status: todo
+
+  - id: epic-3
+    title: "Simulateur de Commerce Narratif (BD Interactive - Vente de Pagnes)"
+    status: todo
+    stories:
+      - id: story-3.1
+        title: "Cockpit du Commerce & Modèle de Données Économique"
+        branch: "feature/epic-3-story-3.1-simulator-cockpit"
+        status: todo
+      - id: story-3.2
+        title: "Scène de Vente Narrative Interactive en BD"
+        branch: "feature/epic-3-story-3.2-simulator-comic-scene"
+        status: todo
+      - id: story-3.3
+        title: "Moteur d'Aléas du Marché & Événements Quotidiens"
+        branch: "feature/epic-3-story-3.3-simulator-random-events"
+        status: todo
+      - id: story-3.4
+        title: "Débriefing Pédagogique Automatisé de Fin de Session"
+        branch: "feature/epic-3-story-3.4-simulator-debriefing"
+        status: todo
+
+  - id: epic-4
+    title: "Assistant Financier Conversationnel (Mascotte & Passerelle HTTP IA)"
+    status: todo
+    stories:
+      - id: story-4.1
+        title: "Interface de Chat Mascotte avec Pilules de Questions Rapides"
+        branch: "feature/epic-4-story-4.1-mascot-chat-ui"
+        status: todo
+      - id: story-4.2
+        title: "Passerelle Backend FastAPI avec Anonymisation PII & Contextualisation"
+        branch: "feature/epic-4-story-4.2-backend-ai-proxy-pii"
+        status: in-progress
+      - id: story-4.3
+        title: "Client HTTP vers l'API de l'Équipe IA Dédiée & Gestion des Pannes Réseau"
+        branch: "feature/epic-4-story-4.3-ai-team-http-client"
+        status: todo
+
+  - id: epic-5
+    title: "Plateforme d'Administration CMS & Cockpit Équipe (Back-Office Web)"
+    status: in-progress
+    stories:
+      - id: story-5.1
+        title: "Back-Office CMS Next.js pour l'Édition No-Code des Leçons"
+        branch: "feature/epic-5-story-5.1-nextjs-cms-courses"
+        status: in-progress
+      - id: story-5.2
+        title: "Éditeur de Scénarios BD avec Prévisualisation Smartphone Miroir"
+        branch: "feature/epic-5-story-5.2-nextjs-comic-mirror-preview"
+        status: todo
+      - id: story-5.3
+        title: "Tableau de Bord Analytics & Export des Requêtes pour l'Équipe IA"
+        branch: "feature/epic-5-story-5.3-nextjs-analytics-ai-export"
+        status: todo

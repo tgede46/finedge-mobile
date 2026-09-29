@@ -1,0 +1,7 @@
+Pour le mobile on va partir sur une architecture MCV pour ce MVP appres on va passer au une architecture MVVM et bloc. cet MVP va etre sur les interface a realiser .
+
+
+le but est de faire un duolingo sur une education financier. donc tu vas faire les t
+
+
+on doit avoir une version mobile et la version web doit le meme . mais la version web pas pour le moment 
