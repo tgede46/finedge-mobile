@@ -21,6 +21,7 @@ import '../../views/profil/settings_view.dart';
 import '../../views/sentier/sentier_view.dart';
 import '../../views/shell/main_shell_view.dart';
 import '../../views/classement/classement_view.dart';
+import '../../views/progression/progression_view.dart';
 import '../../models/mfa_method.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>(
@@ -159,6 +160,17 @@ GoRouter createAppRouter({required SessionController session}) {
         name: 'renouvellement-serie',
         builder: (context, state) => const StreakRenewalFlowView(),
       ),
+      // Écrans hors onglets (accès via raccourcis Accueil)
+      GoRoute(
+        path: '/classement',
+        name: 'classement',
+        builder: (context, state) => const ClassementView(),
+      ),
+      GoRoute(
+        path: '/coach',
+        name: 'coach',
+        builder: (context, state) => const CoachView(),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
           return MainShellView(navigationShell: navigationShell);
@@ -185,18 +197,9 @@ GoRouter createAppRouter({required SessionController session}) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/classement',
-                name: 'classement',
-                builder: (context, state) => const ClassementView(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/coach',
-                name: 'coach',
-                builder: (context, state) => const CoachView(),
+                path: '/progression',
+                name: 'progression',
+                builder: (context, state) => const ProgressionView(),
               ),
             ],
           ),
